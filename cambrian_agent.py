@@ -123,16 +123,8 @@ class CambrianMCPAgent:
                     pass
         
         system_prompt = """You are a Cambrian Trading Agent researching Solana market conditions.
-You have access to the fluora MCP server which can purchase real-time data from the Cambrian API.
-
-IMPORTANT MCP TOOL USAGE:
-- You MUST use mcp__fluora__callServerTool to interact with the Cambrian API
-- The serverId is: 9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7
-- The mcpServerUrl is: https://mcp.rickycambrian.org/monetized
-- DO NOT use Task, WebSearch, or other tools to find the API - use the MCP tools directly!
-
-Each purchase costs 0.001 USDC on Base Sepolia testnet.
-Analyze trends and patterns in the purchased data to generate actionable trading insights."""
+You are making a REAL purchase from the Cambrian API.
+This will cost 0.001 USDC on Base Sepolia testnet."""
         
         # Configure options with fluora MCP server - use the mcpServers directly
         options = ClaudeCodeOptions(
@@ -140,8 +132,8 @@ Analyze trends and patterns in the purchased data to generate actionable trading
             mcp_servers=self.mcp_config['mcpServers'],  # Pass the whole mcpServers dict
             allowed_tools=[
                 "mcp__fluora__searchFluora",
-                "mcp__fluora__callServerTool",
                 "mcp__fluora__listServerTools",
+                "mcp__fluora__callServerTool",
                 "Write"  # To save findings
             ],
             max_turns=10  # More turns needed for the full purchase flow
@@ -158,88 +150,75 @@ Analyze trends and patterns in the purchased data to generate actionable trading
         # Research prompt
         prompt = f"""Cycle #{self.cycle_count}: Advanced Solana Market Analysis
 {context}
-Your task:
-1. First, list available tools using mcp__fluora__listServerTools with:
-   {{
-     "serverId": "9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7",
-     "mcpServerUrl": "https://mcp.rickycambrian.org/monetized"
-   }}
+Make a REAL purchase to get the current SOL price:
 
-2. Make a REAL purchase for current SOL price using mcp__fluora__callServerTool:
-   {{
-     "args": {{
-       "itemId": "solanapricecurrent",
-       "params": {{"token_address": "So11111111111111111111111111111111111111112"}},
-       "itemPrice": 0.001,
-       "paymentMethod": "USDC_BASE_SEPOLIA",
-       "serverWalletAddress": "0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3"
-     }},
-     "serverId": "9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7",
-     "toolName": "make-purchase",
-     "mcpServerUrl": "https://mcp.rickycambrian.org/monetized"
-   }}
+1. Use mcp__fluora__searchFluora to find the Cambrian API server
+2. Use mcp__fluora__callServerTool to call 'payment-methods' to get wallet address
+3. Use mcp__fluora__callServerTool to call 'make-purchase' with:
+   - itemId: "solanapricecurrent"
+   - params: {{"token_address": "So11111111111111111111111111111111111111112"}}
+   - paymentMethod: "USDC_BASE_SEPOLIA"
+   - itemPrice: 0.001
 
-3. Analyze the purchased data:
-   - Extract current SOL price
-   - Calculate price change from previous cycles
-   - Identify trends and patterns
+4. After getting the price, analyze it:
+   - Compare to previous cycles: {context}
+   - Identify trends
    - Generate trading insights
 
-4. Save your complete analysis to:
+5. Save your complete analysis to:
    {os.path.abspath(f'knowledge/research/findings/cycle_{self.cycle_count}_market_analysis.json')}
 
-Include: cycle number, timestamp, price, change %, trend analysis, and trading insights.
-
-REMEMBER: Use ONLY the mcp__fluora__ tools, NOT Task or WebSearch!"""
+Include: cycle number, timestamp, price, change %, trend analysis, and trading insights."""
         
         print("\n📈 Researching market conditions...")
         print("💳 Making REAL MCP purchases...")
         
-        # Track messages for debugging
-        messages_received = []
-        tool_uses = []
-        tool_results = []
+        # Execute the query with timeout
+        purchase_made = False
+        messages_count = 0
+        tools_used = []
         
-        # Execute the query
-        async for message in query(prompt=prompt, options=options):
-            messages_received.append(message)
-            
-            if isinstance(message, AssistantMessage):
-                print("\n>>> Claude:")
-                for block in message.content:
-                    if isinstance(block, TextBlock):
-                        print(f"  Text: {block.text[:200]}...")
-                    elif isinstance(block, ToolUseBlock):
-                        print(f"  🔧 Using tool: {block.name}")
-                        print(f"  📤 Input: {json.dumps(block.input, indent=2)}")
-                        tool_uses.append({
-                            'tool': block.name,
-                            'input': block.input,
-                            'id': block.id
-                        })
-                        
-            elif isinstance(message, ResultMessage):
-                print("\n<<< Tool Result:")
-                # ResultMessage doesn't have content attribute
-                # Just log that we received a result
-                tool_results.append({
-                    'type': 'result',
-                    'message': str(message)[:100]
-                })
+        try:
+            # Add timeout to prevent hanging
+            async with asyncio.timeout(45):  # 45 second timeout
+                async for message in query(prompt=prompt, options=options):
+                    messages_count += 1
+                    
+                    if isinstance(message, AssistantMessage):
+                        print(f"\n>>> Message {messages_count} from Claude")
+                        for block in message.content:
+                            if isinstance(block, TextBlock):
+                                print(f"Text: {block.text[:100]}...")
+                            elif isinstance(block, ToolUseBlock):
+                                tools_used.append(block.name)
+                                print(f"🔧 Tool: {block.name}")
+                                if isinstance(block.input, dict):
+                                    print(f"Input: {json.dumps(block.input, indent=2)[:200]}...")
+                                
+                                if (block.name == 'mcp__fluora__callServerTool' and 
+                                    isinstance(block.input, dict) and 
+                                    block.input.get('toolName') == 'make-purchase'):
+                                    purchase_made = True
+                    
+                    elif isinstance(message, ResultMessage):
+                        print(f"<<< Result for message {messages_count}")
         
-        # Log summary
-        print(f"\n📊 Research Summary:")
-        print(f"  - Messages: {len(messages_received)}")
-        print(f"  - Tool uses: {len(tool_uses)}")
-        print(f"  - Tool results: {len(tool_results)}")
+        except asyncio.TimeoutError:
+            print("\n⏱️ Query timed out after 45 seconds")
+        except Exception as e:
+            print(f"\n❌ Error during query: {e}")
         
-        # Check if MCP purchase was made
-        mcp_purchases = [t for t in tool_uses if t['tool'] == 'mcp__fluora__callServerTool' and t['input'].get('toolName') == 'make-purchase']
-        if mcp_purchases:
-            print(f"\n✅ Made {len(mcp_purchases)} REAL MCP purchase(s)!")
+        print(f"\n📊 Summary:")
+        print(f"  - Messages: {messages_count}")
+        print(f"  - Tools used: {tools_used}")
+        
+        if purchase_made:
+            print("\n✅ Real MCP purchase completed!")
             print("🔗 Check transaction at: https://sepolia.basescan.org/address/0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3")
         else:
-            print("\n⚠️  No MCP purchases made this cycle")
+            print("\n⚠️  No MCP purchase detected this cycle")
+            if 'mcp__fluora__searchFluora' not in tools_used and 'mcp__fluora__callServerTool' not in tools_used:
+                print("❗ MCP tools were not available - fluora-mcp may not be installed or configured correctly")
     
     async def research_arbitrage_opportunities(self):
         """Research arbitrage opportunities across DEXs"""
@@ -254,6 +233,7 @@ Use the fluora MCP server to purchase pool and price data from different DEXs.""
             mcp_servers=self.mcp_config['mcpServers'],
             allowed_tools=[
                 "mcp__fluora__searchFluora",
+                "mcp__fluora__listServerTools",
                 "mcp__fluora__callServerTool",
                 "Write"
             ],
