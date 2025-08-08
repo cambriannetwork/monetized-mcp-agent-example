@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "fluora": {
+      "command": "/Users/riccardoesclapon/.nvm/versions/node/v22.16.0/bin/node",
+      "args": [
+        "--experimental-global-webcrypto",
+        "/Users/riccardoesclapon/.nvm/versions/node/v22.16.0/bin/fluora-mcp"
+      ],
+      "env": {
+        "FLUORA_API_URL": "https://2bwsfmjzdd.us-west-2.awsapprunner.com/api",
+        "NODE_OPTIONS": "--experimental-global-webcrypto",
+        "FLUORA_MCP_SERVER_URL": "http://localhost:80"
+      }
+    },
+    "taskmaster-ai": {
+      "command": "npx",
+      "args": ["-y", "--package=task-master-ai", "task-master-ai"],
+      "env": {
+        "ANTHROPIC_API_KEY": "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",
+        "PERPLEXITY_API_KEY": "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",
+        "OPENAI_API_KEY": "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",
+        "GOOGLE_API_KEY": "AIzaSyB_qxNOinSZ1m6oe0h8hdD-0dqk3q5Mmus",
+        "MISTRAL_API_KEY": "YOUR_MISTRAL_KEY_HERE",
+        "OPENROUTER_API_KEY": "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",
+        "XAI_API_KEY": "YOUR_XAI_KEY_HERE",
+        "AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
+        "OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
+      }
+    }
+  }
+}

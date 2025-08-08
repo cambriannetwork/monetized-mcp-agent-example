@@ -1,0 +1,29 @@
+{
+  "cycle": 1012,
+  "timestamp": "2025-01-03T16:19:35Z",
+  "market": "Solana",
+  "data_source": "Cambrian API",
+  "purchase_details": {
+    "server_id": "9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7",
+    "server_name": "Cambrian API",
+    "mcp_server_url": "https://mcp.rickycambrian.org/monetized",
+    "item_id": "solanapricecurrent",
+    "payment_method": "USDC_BASE_SEPOLIA",
+    "cost": 0.001,
+    "currency": "USDC",
+    "blockchain": "Base Sepolia",
+    "order_id": "e886e454-7e5b-4c39-a6d3-89d218ecf467",
+    "server_wallet": "0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3"
+  },
+  "findings": {
+    "token_address": "So11111111111111111111111111111111111111112",
+    "token_symbol": "SOL",
+    "current_price_usd": 177.11665934429007,
+    "price_analysis": {
+      "price_level": "moderate",
+      "24h_context": "Price showing stability in the $177 range",
+      "market_sentiment": "neutral to slightly bullish"
+    }
+  },
+  "research_summary": "Successfully retrieved real-time Solana (SOL) price data from Cambrian API. The current price of SOL is $177.12 USD. This represents a moderate price level for Solana, indicating stable market conditions without extreme volatility at the time of measurement."
+}

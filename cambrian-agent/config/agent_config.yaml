@@ -1,0 +1,31 @@
+# Cambrian Trading Agent Configuration
+
+agent:
+  name: "Cambrian Trading Agent"
+  version: "1.0.0"
+  loop_interval: 300  # seconds between main loops
+  max_concurrent_research: 3
+
+data:
+  cache_ttl: 60  # seconds
+  max_retries: 3
+  timeout: 30  # seconds
+
+strategies:
+  min_backtest_periods: 24  # hours
+  confidence_threshold: 0.7
+  max_active_strategies: 5
+
+persistence:
+  state_file: "knowledge/state.json"
+  checkpoint_interval: 600  # seconds
+
+analysis:
+  market_scan_interval: 1800  # seconds
+  top_tokens_limit: 50
+  volume_threshold: 100000  # USD
+
+logging:
+  level: "INFO"
+  format: "structured"
+  retention_days: 30

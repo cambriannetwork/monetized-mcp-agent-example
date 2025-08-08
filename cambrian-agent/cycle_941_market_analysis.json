@@ -1,0 +1,28 @@
+{
+  "cycle": 941,
+  "timestamp": "2025-01-06T15:53:44Z",
+  "data_source": "Cambrian API",
+  "purchase_details": {
+    "cost": 0.001,
+    "currency": "USDC",
+    "payment_method": "USDC_BASE_SEPOLIA",
+    "order_id": "75b195fc-930f-4ce8-a386-986d383ccd39",
+    "server_wallet": "0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3"
+  },
+  "market_data": {
+    "token": {
+      "address": "So11111111111111111111111111111111111111112",
+      "symbol": "SOL",
+      "name": "Solana"
+    },
+    "price": {
+      "usd": 177.11665934429007,
+      "timestamp": "2025-01-06T15:53:44Z"
+    }
+  },
+  "analysis": {
+    "summary": "Solana (SOL) is currently trading at $177.12 USD",
+    "data_freshness": "Real-time data from Cambrian API",
+    "market_conditions": "Price data successfully retrieved via authenticated purchase"
+  }
+}
