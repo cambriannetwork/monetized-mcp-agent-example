@@ -136,7 +136,7 @@ This will cost 0.001 USDC on Base Sepolia testnet."""
                 "mcp__fluora__callServerTool",
                 "Write"  # To save findings
             ],
-            max_turns=10  # More turns needed for the full purchase flow
+            max_turns=100  # Allow plenty of turns for Claude to complete the full flow
         )
         
         # Build context from previous findings
@@ -192,9 +192,8 @@ Include: cycle number, timestamp, price, trend analysis, and trading insights.""
         tools_used = []
         
         try:
-            # Add timeout to prevent hanging
-            async with asyncio.timeout(45):  # 45 second timeout
-                async for message in query(prompt=prompt, options=options):
+            # No timeout - let Claude decide when complete
+            async for message in query(prompt=prompt, options=options):
                     messages_count += 1
                     
                     if isinstance(message, AssistantMessage):
@@ -216,8 +215,6 @@ Include: cycle number, timestamp, price, trend analysis, and trading insights.""
                     elif isinstance(message, ResultMessage):
                         print(f"<<< Result for message {messages_count}")
         
-        except asyncio.TimeoutError:
-            print("\n⏱️ Query timed out after 45 seconds")
         except Exception as e:
             print(f"\n❌ Error during query: {e}")
         
@@ -250,7 +247,7 @@ Use the fluora MCP server to purchase pool and price data from different DEXs.""
                 "mcp__fluora__callServerTool",
                 "Write"
             ],
-            max_turns=10
+            max_turns=100  # Allow plenty of turns
         )
         
         prompt = f"""Research arbitrage opportunities by comparing prices across DEXs.
@@ -299,7 +296,7 @@ The agent has access to the Cambrian API for real-time Solana data."""
         options = ClaudeCodeOptions(
             system_prompt=system_prompt,
             allowed_tools=["Write"],
-            max_turns=5
+            max_turns=50  # Allow plenty of turns for goal generation
         )
         
         prompt = f"""Generate 3-5 strategic research goals for a Solana trading agent.
