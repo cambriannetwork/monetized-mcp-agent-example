@@ -1,10 +1,9 @@
+# Core Requirements
 claude-code-sdk>=0.0.14
 anyio>=4.0.0
-pyyaml>=6.0
-pandas>=2.0.0
-numpy>=1.24.0
-python-dateutil>=2.8.2
-requests>=2.31.0
-aiofiles>=23.0.0
-structlog>=24.0.0
 python-dotenv>=1.0.0
+
+# Utilities
+pyyaml>=6.0
+structlog>=24.0.0
+aiofiles>=23.0.0

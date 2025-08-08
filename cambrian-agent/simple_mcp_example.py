@@ -7,6 +7,14 @@ This is a minimal example showing how to:
 2. Find the Cambrian API
 3. Make a real purchase (costs 0.001 USDC)
 4. Get Solana price data
+
+Prerequisites:
+- ANTHROPIC_API_KEY in .env file
+- fluora-mcp installed (npm install -g fluora-mcp)
+- Wallet configured in ~/.fluora/wallets.json
+- Wallet funded with USDC on Base Sepolia
+
+See docs/SETUP.md for detailed instructions.
 """
 
 import anyio

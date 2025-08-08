@@ -4,36 +4,69 @@ __pycache__/
 *$py.class
 *.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
 env/
 venv/
+ENV/
 .venv
 
-# Environment
+# Environment Variables
 .env
 .env.local
+.env.*.local
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.project
+.pydevproject
 
 # Logs
-logs/
+logs/*.log
 *.log
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Project specific
-knowledge/research/findings/*
+# Project Specific
+knowledge/research/findings/*.json
 knowledge/state.json
-knowledge/metrics/
+knowledge/metrics/*.json
 *.tmp
 *.bak
+*.cache
 
-# Keep structure
+# Keep directory structure
+!.gitkeep
 !knowledge/research/findings/.gitkeep
 !knowledge/goals/.gitkeep
 !knowledge/strategies/.gitkeep
+!knowledge/metrics/.gitkeep
+!logs/.gitkeep
+!tests/.gitkeep

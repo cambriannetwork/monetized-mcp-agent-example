@@ -2,6 +2,13 @@
 
 An autonomous trading research agent that makes REAL purchases from the Cambrian API using the monetized MCP (Model Context Protocol) server. This agent analyzes Solana market conditions and develops trading strategies using real blockchain data.
 
+## 📚 Documentation
+
+- **[Installation Guide](docs/SETUP.md)** - Complete setup instructions
+- **[MCP Reference](docs/MCP_REFERENCE.md)** - Understanding MCP and Fluora
+- **[Contributing](docs/CONTRIBUTING.md)** - How to contribute
+- **[Changelog](CHANGELOG.md)** - Version history
+
 ## 🚀 Features
 
 - **Real Blockchain Data**: Makes actual purchases from Cambrian API (0.001 USDC per call)
@@ -20,36 +27,81 @@ An autonomous trading research agent that makes REAL purchases from the Cambrian
 
 ```
 cambrian-agent/
-├── cambrian_agent.py       # Main autonomous agent
-├── simple_mcp_example.py   # Simple example for getting started
+├── cambrian_agent.py         # Main autonomous agent
+├── simple_mcp_example.py     # Simple example for getting started
 ├── config/
-│   └── mcp_config.json     # MCP server configuration
-├── knowledge/              # Persistent knowledge base
-│   ├── goals/              # Research goals
-│   ├── research/           # Research findings
-│   │   └── findings/       # JSON files with analysis
-│   └── state.json          # Agent state
-└── src/                    # Core modules
-    ├── agent/              # Agent logic
-    ├── persistence/        # State management
-    └── strategies/         # Trading strategies
+│   ├── agent_config.yaml     # Agent configuration
+│   └── mcp_config.json       # MCP server configuration
+├── knowledge/                # Persistent knowledge base
+│   ├── goals/                # Research goals
+│   ├── research/
+│   │   └── findings/         # JSON analysis results
+│   ├── strategies/           # Trading strategies
+│   ├── metrics/              # Performance metrics
+│   └── state.json            # Agent state
+├── src/                      # Core modules
+│   ├── agent/                # Agent logic
+│   │   ├── core.py           # Main agent class
+│   │   └── goals.py          # Goal management
+│   ├── persistence/          # State management
+│   └── data/                 # Data utilities
+├── docs/
+│   ├── SETUP.md              # Installation guide
+│   ├── MCP_REFERENCE.md      # MCP documentation
+│   └── CONTRIBUTING.md       # Contribution guidelines
+├── LICENSE                   # GPL-3.0
+├── README.md                 # This file
+├── CHANGELOG.md              # Version history
+├── requirements.txt          # Python dependencies
+├── .env.example              # Environment template
+└── .gitignore                # Git exclusions
 ```
 
-## 🛠️ Setup
+## 🚀 Quick Start
 
-1. **Install dependencies**:
+For detailed setup instructions, see [docs/SETUP.md](docs/SETUP.md).
+
 ```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/cambrian-agent.git
+cd cambrian-agent
+
+# 2. Install dependencies
 pip install -r requirements.txt
+npm install -g fluora-mcp
+
+# 3. Set up wallet and API key (see SETUP.md for details)
+cp .env.example .env
+# Edit .env and add your ANTHROPIC_API_KEY
+
+# 4. Run the agent
+python cambrian_agent.py
 ```
 
-2. **Set up environment**:
-Create a `.env` file with:
-```
-ANTHROPIC_API_KEY=your_api_key_here
-```
+## 📝 Important Notes
 
-3. **Configure MCP**:
-The `config/mcp_config.json` is already configured for the fluora MCP server.
+### Claude Desktop vs claude-code-sdk
+
+This project uses **claude-code-sdk** (Python SDK), NOT Claude Desktop:
+
+- **Claude Desktop**: GUI app with `claude_desktop_config.json`
+- **This project**: Python SDK with `config/mcp_config.json`
+
+The MCP configuration format is the same, but the location differs:
+- Claude Desktop: `~/Library/Application Support/Claude/claude_desktop_config.json` (Mac)
+- This project: `config/mcp_config.json` in the project directory
+
+### Wallet Configuration
+
+Your wallet private key goes in `~/.fluora/wallets.json` (same for both Claude Desktop and SDK):
+
+```json
+{
+  "USDC_BASE_SEPOLIA": {
+    "privateKey": "your-private-key-here"
+  }
+}
+```
 
 ## 🎯 Usage
 
@@ -113,4 +165,6 @@ This is an example project demonstrating monetized MCP integration. Feel free to
 
 ## 📄 License
 
-MIT License - Use at your own risk and cost!
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+For more information, visit: https://www.gnu.org/licenses/gpl-3.0.html
