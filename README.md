@@ -1,212 +1,203 @@
-# Monetized MCP Agent Example - Cambrian Trading Agent
+# Cambrian Trading Agent - Monetized MCP Example
 
-This repository contains a production-ready autonomous trading agent that uses the Cambrian API through a monetized MCP (Model Context Protocol) server to research and develop trading strategies on the Solana blockchain.
+An autonomous trading research agent that makes REAL purchases from the Cambrian API using the monetized MCP (Model Context Protocol) server. This agent analyzes Solana market conditions and develops trading strategies using real blockchain data.
 
-## Overview
+## 🎯 What This Is
 
-The Cambrian Trading Agent is an autonomous system that:
-- Continuously researches trading opportunities using real Cambrian API data
-- Maintains persistent state and can resume from where it left off
-- Tracks goals and progress through a structured knowledge base
-- Develops and evaluates trading strategies based on quantifiable metrics
-- Uses ONLY real data from the Cambrian API - no mock data
+This is a **production-ready example** of how to:
+- Use Claude's MCP (Model Context Protocol) with monetized APIs
+- Integrate with the Cambrian API for Solana market data
+- Create persistent, self-improving AI systems
 
-## Architecture
+**Key Point**: This uses the `claude-code-sdk` Python package, NOT Claude Desktop app.
+
+## 📚 Documentation
+
+- **[Installation Guide](docs/SETUP.md)** - Complete setup instructions
+- **[MCP Reference](docs/MCP_REFERENCE.md)** - Understanding MCP and Fluora
+- **[Contributing](docs/CONTRIBUTING.md)** - How to contribute
+- **[Changelog](CHANGELOG.md)** - Version history
+
+## 🚀 Features
+
+- **Real Blockchain Data**: Makes actual purchases from Cambrian API (0.001 USDC per call)
+- **Autonomous Research**: Runs continuously, building knowledge over time
+- **Persistent State**: Saves all findings and resumes from where it left off
+- **Trading Insights**: Analyzes price trends and generates actionable trading strategies
+- **MCP Integration**: Uses Claude's MCP protocol for secure API access
+
+## 💡 What You'll Build
+
+Running this agent will:
+1. Connect to the Cambrian API via Fluora MCP
+2. Purchase real-time Solana price data (0.001 USDC per call)
+3. Analyze market trends over multiple cycles
+4. Generate trading insights and opportunities
+5. Save findings for continuous learning
+
+## 💰 Cost Warning
+
+**IMPORTANT**: This agent makes REAL purchases that cost money!
+- Each API call costs 0.001 USDC on Base Sepolia testnet
+- Transactions are real and visible on the blockchain
+- Monitor at: https://sepolia.basescan.org/address/0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3
+
+## 📁 Project Structure
 
 ```
-cambrian-agent/
-├── config/                 # Configuration files
-│   ├── agent_config.yaml  # Agent settings
-│   └── mcp_config.json    # MCP server configuration
-├── src/                   # Source code
-│   ├── agent/            # Core agent logic
-│   ├── data/             # Data management
-│   ├── strategies/       # Strategy modules
-│   ├── persistence/      # State persistence
-│   └── analysis/         # Analysis tools
-├── knowledge/            # Agent's knowledge base
-│   ├── goals/           # Current and completed goals
-│   ├── research/        # Research findings
-│   ├── strategies/      # Trading strategies
-│   └── metrics/         # Performance metrics
-└── logs/                # Agent logs
+.
+├── cambrian_agent.py         # Main autonomous agent
+├── simple_mcp_example.py     # Simple example for getting started
+├── config/
+│   ├── agent_config.yaml     # Agent configuration
+│   └── mcp_config.json       # MCP server configuration
+├── knowledge/                # Persistent knowledge base
+│   ├── goals/                # Research goals
+│   ├── research/
+│   │   └── findings/         # JSON analysis results
+│   ├── strategies/           # Trading strategies
+│   ├── metrics/              # Performance metrics
+│   └── state.json            # Agent state
+├── src/                      # Core modules
+│   ├── agent/                # Agent logic
+│   │   ├── core.py           # Main agent class
+│   │   └── goals.py          # Goal management
+│   ├── persistence/          # State management
+│   └── data/                 # Data utilities
+├── docs/
+│   ├── SETUP.md              # Installation guide
+│   ├── MCP_REFERENCE.md      # MCP documentation
+│   └── CONTRIBUTING.md       # Contribution guidelines
+├── LICENSE                   # GPL-3.0
+├── README.md                 # This file
+├── CHANGELOG.md              # Version history
+├── requirements.txt          # Python dependencies
+├── .env.example              # Environment template
+└── .gitignore                # Git exclusions
 ```
 
-## Key Features
+## 🚀 Quick Start
 
-### 1. Autonomous Operation
-The agent runs continuously, making decisions based on its current goals and market conditions.
+For detailed setup instructions, see [docs/SETUP.md](docs/SETUP.md).
 
-### 2. Real Data Integration
-Uses the monetized MCP server to access Cambrian API endpoints:
-- Current token prices
-- Historical price data
-- Trading volumes
-- Pool information
-- Market trends
-
-### 3. Goal-Driven Research
-Maintains a prioritized list of research goals:
-- Market analysis
-- Arbitrage opportunity detection
-- Momentum pattern recognition
-- Liquidity dynamics
-
-### 4. Persistent State
-All progress is saved and can be resumed:
-- Current goals and status
-- Research findings
-- Strategy performance
-- Market insights
-
-### 5. Claude Integration
-Uses Claude Code SDK for intelligent analysis and decision-making.
-
-## Installation
-
-1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd monetized-mcp-agent-example-claude-code
-```
+# 1. Clone the repository
+git clone https://github.com/your-username/monetized-mcp-agent-example.git
+cd monetized-mcp-agent-example
 
-2. Install dependencies:
-```bash
-cd cambrian-agent
+# 2. Install dependencies
 pip install -r requirements.txt
+npm install -g fluora-mcp
+
+# 3. Set up wallet and API key (see SETUP.md for details)
+cp .env.example .env
+# Edit .env and add your ANTHROPIC_API_KEY
+
+# 4. Run the agent
+python cambrian_agent.py
 ```
 
-3. Verify MCP configuration:
-The `config/mcp_config.json` contains the working monetized MCP configuration.
+## 📝 Important Notes
 
-## Usage
+### Claude Desktop vs claude-code-sdk
 
-### Running the Agent
+This project uses **claude-code-sdk** (Python SDK), NOT Claude Desktop:
 
-**Production Mode (FULLY WORKING):**
-```bash
-cd cambrian-agent
-python run_agent_production.py
-```
-OR
-```bash
-cd cambrian-agent
-python run_agent.py
-```
+- **Claude Desktop**: GUI app with `claude_desktop_config.json`
+- **This project**: Python SDK with `config/mcp_config.json`
 
-**Demo Mode (simplified for testing):**
-```bash
-cd cambrian-agent
-python run_agent_demo.py
-```
+The MCP configuration format is the same, but the location differs:
+- Claude Desktop: `~/Library/Application Support/Claude/claude_desktop_config.json` (Mac)
+- This project: `config/mcp_config.json` in the project directory
 
-The agent will:
-1. Initialize and load previous state
-2. Review current goals
-3. Use the Cambrian API to gather data (via monetized MCP)
-4. Analyze findings and develop strategies
-5. Save progress and insights
+### Wallet Configuration
 
-Note: The production mode uses Claude SDK which may take time to initialize. The demo mode shows the agent architecture working without the Claude SDK calls.
+Your wallet private key goes in `~/.fluora/wallets.json` (same for both Claude Desktop and SDK):
 
-### Testing
-
-Run the test script to verify functionality:
-```bash
-python test_agent.py
-```
-
-## Configuration
-
-### Agent Configuration (`config/agent_config.yaml`)
-- `loop_interval`: Time between agent cycles (default: 300 seconds)
-- `max_concurrent_research`: Maximum parallel research tasks
-- `cache_ttl`: Data cache duration
-- `confidence_threshold`: Minimum confidence for strategies
-
-### MCP Configuration (`config/mcp_config.json`)
-Contains the monetized MCP server settings for accessing Cambrian API.
-
-## How It Works
-
-### 1. Goal Management
-The agent maintains goals in `knowledge/goals/current_goals.md`:
-- Primary goals (high priority)
-- Secondary goals (medium/low priority)
-- Completed goals with findings
-
-### 2. Research Process
-For each active goal, the agent:
-1. Queries relevant Cambrian API endpoints via MCP
-2. Analyzes the data using Claude
-3. Documents findings in markdown files
-4. Updates goal progress
-
-### 3. Data Access
-The agent accesses Cambrian data through the monetized MCP:
-```python
-# Example MCP request structure
+```json
 {
-  "itemId": "solanapricecurrent",
-  "params": {
-    "token_address": "So11111111111111111111111111111111111111112"
-  },
-  "paymentMethod": "USDC_BASE_SEPOLIA",
-  "itemPrice": 0.001,
-  "serverWalletAddress": "0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3"
+  "USDC_BASE_SEPOLIA": {
+    "privateKey": "your-private-key-here"
+  }
 }
 ```
 
-### 4. Strategy Development
-The agent develops strategies based on:
-- Price movements and patterns
-- Volume analysis
-- Cross-DEX arbitrage opportunities
-- Market momentum indicators
+## 🎯 Usage
 
-## Monitoring
+### Simple Example
+To make a single purchase and get SOL price:
+```bash
+python simple_mcp_example.py
+```
 
-### Logs
-Structured logs are output to console and can be redirected to files.
+### Full Autonomous Agent
+To run the continuous research agent:
+```bash
+python cambrian_agent.py
+```
 
-### Metrics
-Performance metrics are tracked in `knowledge/metrics/`.
+The agent will:
+- Make a real purchase every 15 seconds
+- Analyze price trends
+- Generate trading insights
+- Save all findings to `knowledge/research/findings/`
 
-### State
-Current state is saved in `knowledge/state.json`.
+## 📊 What the Agent Does
 
-## Production Deployment
+1. **Market Analysis**: Purchases real-time SOL price data
+2. **Trend Detection**: Identifies patterns across multiple cycles
+3. **Strategy Development**: Suggests trading opportunities
+4. **Knowledge Building**: Each cycle builds on previous findings
 
-For production use:
-1. Set appropriate environment variables
-2. Configure logging to files
-3. Set up monitoring/alerting
-4. Ensure proper error handling
-5. Configure backup of knowledge base
+## 🔧 How It Works
 
-## Security
+1. **MCP Connection**: Uses fluora server to access Cambrian API
+2. **Real Purchases**: Each cycle makes an actual blockchain transaction
+3. **Data Analysis**: Claude analyzes the data and generates insights
+4. **Persistence**: All findings are saved as JSON files
 
-- API keys are stored securely in environment/config
-- No sensitive data is logged
-- All findings are saved locally
+## 📈 Example Output
 
-## Future Enhancements
+```json
+{
+  "cycle": 5,
+  "timestamp": "2025-08-08T17:30:00",
+  "price": 183.51,
+  "change_percent": 0.5,
+  "trend": "upward",
+  "market_condition": "stable",
+  "insights": "SOL showing consistent growth...",
+  "trading_opportunity": "Consider long position..."
+}
+```
 
-Potential improvements:
-- Real-time strategy execution
-- Advanced backtesting framework
-- Multi-agent collaboration
-- Enhanced risk management
-- Dashboard for monitoring
+## ⚠️ Important Notes
 
-## License
+- Requires ANTHROPIC_API_KEY
+- Each run costs real money (USDC)
+- Agent runs continuously until stopped (Ctrl+C)
+- All data is from real blockchain, not simulated
 
-[Your License Here]
+## 📋 Requirements
 
-## Support
+- Python 3.8+
+- Node.js 16+
+- Anthropic API key
+- Funded wallet (testnet or mainnet USDC)
 
-For issues or questions:
-- Check logs for error messages
-- Review agent state and goals
-- Ensure MCP server is accessible
-- Verify Cambrian API connectivity
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.md) for details.
+
+## 🔒 Security
+
+- **Private Keys**: Never commit wallet private keys
+- **API Keys**: Keep your `.env` file private
+- **Wallet Safety**: Agent can only spend what's in the wallet
+- **Testnet First**: Always test on Base Sepolia before mainnet
+
+## 📄 License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
+
+For more information, visit: https://www.gnu.org/licenses/gpl-3.0.html
