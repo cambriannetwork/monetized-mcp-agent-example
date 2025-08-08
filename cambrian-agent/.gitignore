@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+knowledge/research/findings/*
+knowledge/state.json
+knowledge/metrics/
+*.tmp
+*.bak
+
+# Keep structure
+!knowledge/research/findings/.gitkeep
+!knowledge/goals/.gitkeep
+!knowledge/strategies/.gitkeep
