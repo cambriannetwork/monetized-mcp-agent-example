@@ -2,6 +2,16 @@
 
 An autonomous trading research agent that makes REAL purchases from the Cambrian API using the monetized MCP (Model Context Protocol) server. This agent analyzes Solana market conditions and develops trading strategies using real blockchain data.
 
+## 🎯 What This Is
+
+This is a **production-ready example** of how to:
+- Use Claude's MCP (Model Context Protocol) with monetized APIs
+- Build an autonomous agent that makes real blockchain transactions
+- Integrate with the Cambrian API for Solana market data
+- Create persistent, self-improving AI systems
+
+**Key Point**: This uses the `claude-code-sdk` Python package, NOT Claude Desktop app.
+
 ## 📚 Documentation
 
 - **[Installation Guide](docs/SETUP.md)** - Complete setup instructions
@@ -17,11 +27,21 @@ An autonomous trading research agent that makes REAL purchases from the Cambrian
 - **Trading Insights**: Analyzes price trends and generates actionable trading strategies
 - **MCP Integration**: Uses Claude's MCP protocol for secure API access
 
+## 💡 What You'll Build
+
+Running this agent will:
+1. Connect to the Cambrian API via Fluora MCP
+2. Purchase real-time Solana price data (0.001 USDC per call)
+3. Analyze market trends over multiple cycles
+4. Generate trading insights and opportunities
+5. Save findings for continuous learning
+
 ## 💰 Cost Warning
 
 **IMPORTANT**: This agent makes REAL purchases that cost money!
 - Each API call costs 0.001 USDC on Base Sepolia testnet
-- Monitor transactions at: https://sepolia.basescan.org/address/0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3
+- Transactions are real and visible on the blockchain
+- Monitor at: https://sepolia.basescan.org/address/0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3
 
 ## 📁 Project Structure
 
@@ -159,12 +179,26 @@ The agent will:
 - Agent runs continuously until stopped (Ctrl+C)
 - All data is from real blockchain, not simulated
 
+## 📋 Requirements
+
+- Python 3.8+
+- Node.js 16+
+- Anthropic API key
+- Funded wallet (testnet or mainnet USDC)
+
 ## 🤝 Contributing
 
-This is an example project demonstrating monetized MCP integration. Feel free to fork and extend!
+We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.md) for details.
+
+## 🔒 Security
+
+- **Private Keys**: Never commit wallet private keys
+- **API Keys**: Keep your `.env` file private
+- **Wallet Safety**: Agent can only spend what's in the wallet
+- **Testnet First**: Always test on Base Sepolia before mainnet
 
 ## 📄 License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
 
 For more information, visit: https://www.gnu.org/licenses/gpl-3.0.html
