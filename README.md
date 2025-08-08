@@ -97,6 +97,28 @@ cp .env.example .env
 python cambrian_agent.py
 ```
 
+### 🎯 First Time Setup
+
+When you run the agent for the first time, it will automatically launch an **interactive setup wizard** to help you configure:
+
+- **Trading Objectives**: What you want the agent to focus on (profit maximization, arbitrage, research, etc.)
+- **Risk Profile**: Your risk tolerance and position limits
+- **Data Sources**: Which tokens and DEXs to monitor
+- **Agent Behavior**: How often to run cycles and whether to auto-purchase data
+
+### 🔄 Reset and Reconfigure
+
+To reset your configuration and start fresh:
+
+```bash
+python cambrian_agent.py --reset
+```
+
+This will:
+- Backup your existing data
+- Clear all findings and state
+- Run the setup wizard again
+
 ## 📝 Important Notes
 
 ### Claude Desktop vs claude-code-sdk
@@ -137,10 +159,33 @@ python cambrian_agent.py
 ```
 
 The agent will:
-- Make a real purchase every 15 seconds
+- Run the setup wizard on first launch
+- Make real purchases based on your configured interval
 - Analyze price trends
 - Generate trading insights
 - Save all findings to `knowledge/research/findings/`
+
+### Model Training
+Train ML models using MCP data:
+```bash
+python train_model.py
+```
+
+Options:
+1. Train new model - Collects data via MCP and trains a price predictor
+2. Make prediction - Uses existing model to predict next price
+3. Run scheduler - Automatically retrains models on schedule
+
+### Python Scripts
+Use the MCP client in your own scripts:
+```python
+from src.mcp_client import PythonMCPClient
+
+async def example():
+    client = PythonMCPClient()
+    price = await client.get_solana_price()
+    print(f"Current SOL price: ${price}")
+```
 
 ## 📊 What the Agent Does
 

@@ -1,0 +1,25 @@
+{
+  "created_at": "2025-08-08T21:50:41.934596",
+  "version": "1.0",
+  "user_direction": "default",
+  "objectives": {
+    "primary": "market_research",
+    "selected": [
+      "market_research",
+      "profit_maximization"
+    ],
+    "time_horizon": "days"
+  },
+  "risk_profile": {
+    "tolerance": "moderate",
+    "max_position_pct": 10.0,
+    "stop_loss_pct": 5.0,
+    "use_leverage": false
+  },
+  "agent": {
+    "cycle_interval_seconds": 15,
+    "auto_purchase": true,
+    "daily_budget_usdc": 0.1,
+    "max_concurrent_research": 3
+  }
+}

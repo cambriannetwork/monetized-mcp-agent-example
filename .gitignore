@@ -70,3 +70,4 @@ knowledge/metrics/*.json
 !knowledge/metrics/.gitkeep
 !logs/.gitkeep
 !tests/.gitkeep
+/backups

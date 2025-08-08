@@ -7,13 +7,15 @@ This correctly configures the MCP server using the dictionary format
 import anyio
 import asyncio
 import os
+import sys
+import argparse
 import json
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
 from claude_code_sdk import (
-    query,
+    query as claude_query,
     ClaudeCodeOptions,
     AssistantMessage,
     ResultMessage,
@@ -23,7 +25,9 @@ from claude_code_sdk import (
 )
 
 from src.persistence.state_manager import StateManager
+from src.persistence.query_tracker import QueryTracker
 from src.agent.goals import GoalManager
+from src.setup import SetupWizard, run_setup
 
 # Load environment variables
 load_dotenv()
@@ -36,12 +40,17 @@ class CambrianMCPAgent:
         config = {'persistence': {'state_file': 'knowledge/state.json'}, 'agent': {}}
         self.state_manager = StateManager(config)
         self.goal_manager = GoalManager(config)
+        self.query_tracker = QueryTracker()
         self.cycle_count = 0
         self.running = False
+        self.user_config = None
         
         # Load the MCP config
         with open('config/mcp_config.json') as f:
             self.mcp_config = json.load(f)
+        
+        # Load user config if exists
+        self._load_user_config()
         
     async def initialize(self):
         """Initialize agent and restore state"""
@@ -122,6 +131,10 @@ class CambrianMCPAgent:
                 except:
                     pass
         
+        # Get successful query patterns for this goal type
+        successful_sequence = self.query_tracker.get_query_sequence_for_goal("market_analysis")
+        previous_pattern = self.query_tracker.get_successful_pattern("market_analysis", "mcp__fluora__callServerTool")
+        
         system_prompt = """You are a Cambrian Trading Agent researching Solana market conditions.
 You are making a REAL purchase from the Cambrian API.
 This will cost 0.001 USDC on Base Sepolia testnet."""
@@ -136,7 +149,7 @@ This will cost 0.001 USDC on Base Sepolia testnet."""
                 "mcp__fluora__callServerTool",
                 "Write"  # To save findings
             ],
-            max_turns=100  # Allow plenty of turns for Claude to complete the full flow
+            max_turns=150  # Allow plenty of turns for Claude to complete the full flow
         )
         
         # Build context from previous findings
@@ -147,9 +160,17 @@ This will cost 0.001 USDC on Base Sepolia testnet."""
                 if 'price' in finding:
                     context += f"- Cycle {finding.get('cycle', '?')}: SOL price ${finding['price']}\n"
         
+        # Add successful patterns to prompt if available
+        pattern_context = ""
+        if successful_sequence:
+            pattern_context = "\nPrevious successful query sequence:\n"
+            for i, query in enumerate(successful_sequence, 1):
+                pattern_context += f"{i}. {query['tool']} with params: {json.dumps(query['params'])}\n"
+        
         # Research prompt
         prompt = f"""Cycle #{self.cycle_count}: Advanced Solana Market Analysis
 {context}
+{pattern_context}
 IMPORTANT: You have access to MCP tools. Use them DIRECTLY - do NOT use Task, WebSearch, or other tools to look for them.
 
 Make a REAL purchase to get the current SOL price by following these exact steps:
@@ -190,30 +211,31 @@ Include: cycle number, timestamp, price, trend analysis, and trading insights.""
         purchase_made = False
         messages_count = 0
         tools_used = []
+        successful_tools = []  # Track successful tool calls
         
         try:
             # No timeout - let Claude decide when complete
-            async for message in query(prompt=prompt, options=options):
-                    messages_count += 1
-                    
-                    if isinstance(message, AssistantMessage):
-                        print(f"\n>>> Message {messages_count} from Claude")
-                        for block in message.content:
-                            if isinstance(block, TextBlock):
-                                print(f"Text: {block.text[:100]}...")
-                            elif isinstance(block, ToolUseBlock):
-                                tools_used.append(block.name)
-                                print(f"🔧 Tool: {block.name}")
-                                if isinstance(block.input, dict):
-                                    print(f"Input: {json.dumps(block.input, indent=2)[:200]}...")
-                                
-                                if (block.name == 'mcp__fluora__callServerTool' and 
-                                    isinstance(block.input, dict) and 
-                                    block.input.get('toolName') == 'make-purchase'):
-                                    purchase_made = True
-                    
-                    elif isinstance(message, ResultMessage):
-                        print(f"<<< Result for message {messages_count}")
+            async for message in claude_query(prompt=prompt, options=options):
+                messages_count += 1
+                
+                if isinstance(message, AssistantMessage):
+                    print(f"\n>>> Message {messages_count} from Claude")
+                    for block in message.content:
+                        if isinstance(block, TextBlock):
+                            print(f"Text: {block.text[:100]}...")
+                        elif isinstance(block, ToolUseBlock):
+                            tools_used.append(block.name)
+                            print(f"🔧 Tool: {block.name}")
+                            if isinstance(block.input, dict):
+                                print(f"Input: {json.dumps(block.input, indent=2)[:200]}...")
+                            
+                            if (block.name == 'mcp__fluora__callServerTool' and 
+                                isinstance(block.input, dict) and 
+                                block.input.get('toolName') == 'make-purchase'):
+                                purchase_made = True
+                
+                elif isinstance(message, ResultMessage):
+                    print(f"<<< Result for message {messages_count}")
         
         except Exception as e:
             print(f"\n❌ Error during query: {e}")
@@ -247,7 +269,7 @@ Use the fluora MCP server to purchase pool and price data from different DEXs.""
                 "mcp__fluora__callServerTool",
                 "Write"
             ],
-            max_turns=100  # Allow plenty of turns
+            max_turns=150  # Allow plenty of turns
         )
         
         prompt = f"""Research arbitrage opportunities by comparing prices across DEXs.
@@ -296,7 +318,7 @@ The agent has access to the Cambrian API for real-time Solana data."""
         options = ClaudeCodeOptions(
             system_prompt=system_prompt,
             allowed_tools=["Write"],
-            max_turns=50  # Allow plenty of turns for goal generation
+            max_turns=100  # Allow plenty of turns for goal generation
         )
         
         prompt = f"""Generate 3-5 strategic research goals for a Solana trading agent.
@@ -352,16 +374,53 @@ Make the goals diverse and complementary, covering different aspects of Solana t
                 await self.execute_cycle()
                 
                 # Wait before next cycle
-                print(f"\n💤 Waiting 15 seconds until next cycle...")
-                await asyncio.sleep(15)
+                interval = 15  # Default
+                if self.user_config and 'agent' in self.user_config:
+                    interval = self.user_config['agent'].get('cycle_interval_seconds', 15)
+                
+                print(f"\n💤 Waiting {interval} seconds until next cycle...")
+                await asyncio.sleep(interval)
                 
         except KeyboardInterrupt:
             print("\n\n⚠️  Shutting down...")
             self.running = False
+    
+    def _load_user_config(self):
+        """Load user configuration if it exists"""
+        user_config_file = Path("config/user_config.json")
+        if user_config_file.exists():
+            with open(user_config_file) as f:
+                self.user_config = json.load(f)
 
 
 async def main():
     """Main entry point"""
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Cambrian Trading Agent")
+    parser.add_argument("--reset", action="store_true", help="Reset project and run setup wizard")
+    args = parser.parse_args()
+    
+    # Check for first run or reset flag
+    wizard = SetupWizard()
+    is_first_run = wizard.check_first_run()
+    
+    if args.reset or is_first_run:
+        if is_first_run:
+            print("\n👋 Welcome! This appears to be your first time running the Cambrian Trading Agent.")
+            print("Let's set up your trading objectives and preferences.\n")
+        
+        # Run setup wizard
+        config = await run_setup(reset=args.reset)
+        if not config:
+            print("Setup cancelled.")
+            return
+        
+        print("\n✅ Setup complete! Starting the agent with your configuration...\n")
+        await asyncio.sleep(2)  # Brief pause
+    
+    # Load user config
+    user_config = wizard.load_config()
     
     print("""
     ╔═══════════════════════════════════════════╗
@@ -375,6 +434,9 @@ async def main():
     ╚═══════════════════════════════════════════╝
     """)
     
+    if user_config and user_config.get('user_direction') != 'default':
+        print(f"📊 Direction: {user_config.get('user_direction', 'default')}")
+    
     print("\n⚠️  WARNING: This agent makes REAL paid MCP calls!")
     print("📍 Each call costs 0.001 USDC on Base Sepolia")
     print("🔗 Monitor at: https://sepolia.basescan.org/address/0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3")
@@ -387,7 +449,8 @@ async def main():
         return
     
     print("Starting autonomous agent...")
-    print("The agent will make REAL purchases every 15 seconds.")
+    if user_config and user_config['agent']['auto_purchase']:
+        print(f"💳 Auto-purchase enabled with daily budget: ${user_config['agent']['daily_budget_usdc']} USDC")
     
     # Create and run agent
     agent = CambrianMCPAgent()
