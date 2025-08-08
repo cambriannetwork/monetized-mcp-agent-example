@@ -73,15 +73,28 @@ class CambrianMCPAgent:
         active_goals = await self.goal_manager.get_active_goals()
         print(f"\n📋 Active goals: {len(active_goals)}")
         
+        # If no active goals, intelligently generate new ones
+        if not active_goals:
+            print("🤔 No active goals found. Generating intelligent research objectives...")
+            await self.generate_research_goals()
+            # Reload goals after generation
+            await self.goal_manager.load_goals()
+            active_goals = await self.goal_manager.get_active_goals()
+            print(f"✨ Generated {len(active_goals)} new research goals!")
+        
         if active_goals:
             goal = active_goals[0]
             print(f"🔬 Working on: {goal.title}")
             
             # Execute research based on goal type
-            if "market analysis" in goal.title.lower():
+            if any(keyword in goal.title.lower() for keyword in ["market", "price", "trend", "analysis"]):
                 await self.research_market_analysis()
             elif "arbitrage" in goal.title.lower():
                 await self.research_arbitrage_opportunities()
+            elif any(keyword in goal.title.lower() for keyword in ["entry", "exit", "trading"]):
+                await self.research_market_analysis()  # Use market analysis for trading signals too
+            elif "volatility" in goal.title.lower():
+                await self.research_market_analysis()  # Use market analysis for volatility research
             else:
                 await self.research_general()
         
@@ -112,11 +125,14 @@ class CambrianMCPAgent:
         system_prompt = """You are a Cambrian Trading Agent researching Solana market conditions.
 You have access to the fluora MCP server which can purchase real-time data from the Cambrian API.
 
-IMPORTANT: 
-- Each purchase costs 0.001 USDC on Base Sepolia testnet
-- You MUST make real purchases to get current data
-- Analyze trends and patterns in the data
-- Generate actionable insights for trading strategies"""
+IMPORTANT MCP TOOL USAGE:
+- You MUST use mcp__fluora__callServerTool to interact with the Cambrian API
+- The serverId is: 9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7
+- The mcpServerUrl is: https://mcp.rickycambrian.org/monetized
+- DO NOT use Task, WebSearch, or other tools to find the API - use the MCP tools directly!
+
+Each purchase costs 0.001 USDC on Base Sepolia testnet.
+Analyze trends and patterns in the purchased data to generate actionable trading insights."""
         
         # Configure options with fluora MCP server - use the mcpServers directly
         options = ClaudeCodeOptions(
@@ -143,25 +159,38 @@ IMPORTANT:
         prompt = f"""Cycle #{self.cycle_count}: Advanced Solana Market Analysis
 {context}
 Your task:
-1. Use mcp__fluora__searchFluora to find the Cambrian API
-2. Use mcp__fluora__callServerTool with 'payment-methods' to get wallet address
-3. Make a REAL purchase for current SOL price:
-   - Use mcp__fluora__callServerTool with 'make-purchase'
-   - itemId: "solanapricecurrent"
-   - params: {{"token_address": "So11111111111111111111111111111111111111112"}}
-   - paymentMethod: "USDC_BASE_SEPOLIA"
-   - itemPrice: 0.001
+1. First, list available tools using mcp__fluora__listServerTools with:
+   {{
+     "serverId": "9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7",
+     "mcpServerUrl": "https://mcp.rickycambrian.org/monetized"
+   }}
 
-4. Analyze the data and generate insights:
+2. Make a REAL purchase for current SOL price using mcp__fluora__callServerTool:
+   {{
+     "args": {{
+       "itemId": "solanapricecurrent",
+       "params": {{"token_address": "So11111111111111111111111111111111111111112"}},
+       "itemPrice": 0.001,
+       "paymentMethod": "USDC_BASE_SEPOLIA",
+       "serverWalletAddress": "0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3"
+     }},
+     "serverId": "9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7",
+     "toolName": "make-purchase",
+     "mcpServerUrl": "https://mcp.rickycambrian.org/monetized"
+   }}
+
+3. Analyze the purchased data:
+   - Extract current SOL price
    - Calculate price change from previous cycles
-   - Identify any trends or patterns
-   - Suggest potential trading opportunities
-   - Note market conditions (volatile, stable, trending)
+   - Identify trends and patterns
+   - Generate trading insights
 
-5. Save your complete analysis to:
-   knowledge/research/findings/cycle_{self.cycle_count}_market_analysis.json
+4. Save your complete analysis to:
+   {os.path.abspath(f'knowledge/research/findings/cycle_{self.cycle_count}_market_analysis.json')}
 
-Include: cycle number, timestamp, price, change %, trend analysis, and trading insights."""
+Include: cycle number, timestamp, price, change %, trend analysis, and trading insights.
+
+REMEMBER: Use ONLY the mcp__fluora__ tools, NOT Task or WebSearch!"""
         
         print("\n📈 Researching market conditions...")
         print("💳 Making REAL MCP purchases...")
@@ -244,6 +273,85 @@ Make REAL purchases for pool data if available."""
         """General research"""
         print("\n🔍 Conducting general research...")
         # Simplified for brevity
+    
+    async def generate_research_goals(self):
+        """Use Claude to intelligently generate research goals based on current market conditions"""
+        print("\n🧠 Using Claude to generate intelligent research goals...")
+        
+        # Look at any previous research findings
+        previous_insights = []
+        findings_dir = Path("knowledge/research/findings")
+        if findings_dir.exists():
+            recent_files = sorted(findings_dir.glob("*.json"))[-10:]
+            for f in recent_files:
+                try:
+                    with open(f) as file:
+                        data = json.load(file)
+                        if 'insights' in data:
+                            previous_insights.append(data['insights'])
+                except:
+                    pass
+        
+        # Build context
+        context = ""
+        if previous_insights:
+            context = "\nPrevious research insights:\n"
+            for insight in previous_insights[-5:]:
+                context += f"- {insight[:100]}...\n"
+        
+        system_prompt = """You are a strategic research planner for a Solana trading agent.
+Your task is to generate intelligent, actionable research goals based on current market conditions.
+The agent has access to the Cambrian API for real-time Solana data."""
+        
+        options = ClaudeCodeOptions(
+            system_prompt=system_prompt,
+            allowed_tools=["Write"],
+            max_turns=5
+        )
+        
+        prompt = f"""Generate 3-5 strategic research goals for a Solana trading agent.
+{context}
+Consider:
+1. Current market conditions and trends
+2. Different types of trading strategies (momentum, arbitrage, liquidity provision)
+3. Risk management and portfolio optimization
+4. Specific Solana ecosystem opportunities
+
+Create goals that are:
+- Specific and measurable
+- Achievable through data analysis
+- Relevant to profitable trading
+- Time-bound (can make progress each cycle)
+
+Save the goals to: {os.path.abspath('knowledge/goals/goals.json')}
+
+Format exactly as shown (include ALL fields):
+{{
+  "goals": [
+    {{
+      "id": "goal_001",
+      "title": "Clear, specific goal title",
+      "description": "Detailed description of what to research and why",
+      "status": "active",
+      "priority": "high",
+      "created_at": "{datetime.now().isoformat()}",
+      "progress": 0,
+      "metrics": ["metric1", "metric2"]
+    }}
+  ]
+}}
+
+Make the goals diverse and complementary, covering different aspects of Solana trading."""
+        
+        messages_count = 0
+        async for message in query(prompt=prompt, options=options):
+            messages_count += 1
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, ToolUseBlock) and block.name == "Write":
+                        print(f"📝 Writing goals to: {block.input.get('file_path', 'unknown')}")
+        
+        print(f"✅ Goal generation complete (messages: {messages_count})")
     
     async def run(self):
         """Main agent loop"""

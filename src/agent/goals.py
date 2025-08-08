@@ -53,47 +53,39 @@ class GoalManager:
         self.goals: List[Goal] = []
     
     async def load_goals(self):
-        """Load goals from markdown file"""
-        goals_file = self.goals_path / "current_goals.md"
+        """Load goals from JSON file"""
+        goals_file = self.goals_path / "goals.json"
         
         if not goals_file.exists():
             logger.warning("No goals file found, creating default goals")
-            await self._create_default_goals()
+            self.goals = []
             return
         
-        # Parse goals from markdown
-        # For now, we'll use predefined goals
-        self.goals = [
-            Goal(
-                id="market-analysis",
-                title="Market Analysis Foundation",
-                description="Establish baseline understanding of Solana token market dynamics",
-                priority="high",
-                status="not_started",
-                created_at=datetime.now().isoformat(),
-                updated_at=datetime.now().isoformat()
-            ),
-            Goal(
-                id="arbitrage-research",
-                title="Arbitrage Opportunity Research",
-                description="Identify and quantify cross-DEX arbitrage opportunities",
-                priority="high",
-                status="not_started",
-                created_at=datetime.now().isoformat(),
-                updated_at=datetime.now().isoformat()
-            ),
-            Goal(
-                id="momentum-strategy",
-                title="Momentum Trading Strategy Development",
-                description="Develop momentum-based trading strategies using real price data",
-                priority="medium",
-                status="not_started",
-                created_at=datetime.now().isoformat(),
-                updated_at=datetime.now().isoformat()
-            )
-        ]
-        
-        logger.info(f"Loaded {len(self.goals)} goals")
+        try:
+            # Load goals from JSON
+            with open(goals_file, 'r') as f:
+                data = json.load(f)
+                
+            self.goals = []
+            for goal_data in data.get('goals', []):
+                # Convert the goal format from Claude's output
+                goal = Goal(
+                    id=goal_data.get('id', ''),
+                    title=goal_data.get('title', ''),
+                    description=goal_data.get('description', ''),
+                    priority=goal_data.get('priority', 'medium'),
+                    status=goal_data.get('status', 'active'),
+                    created_at=goal_data.get('created_at', datetime.now().isoformat()),
+                    updated_at=goal_data.get('updated_at', datetime.now().isoformat()),
+                    metrics=goal_data.get('metrics', {}),
+                    findings=goal_data.get('findings', [])
+                )
+                self.goals.append(goal)
+            
+            logger.info(f"Loaded {len(self.goals)} goals from JSON")
+        except Exception as e:
+            logger.error(f"Error loading goals: {e}")
+            self.goals = []
     
     async def get_active_goals(self) -> List[Goal]:
         """Get goals that are not completed, sorted by priority"""
