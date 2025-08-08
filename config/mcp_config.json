@@ -1,10 +1,10 @@
 {
   "mcpServers": {
     "fluora": {
-      "command": "node",
+      "command": "/Users/riccardoesclapon/.nvm/versions/node/v22.16.0/bin/node",
       "args": [
         "--experimental-global-webcrypto",
-        "fluora-mcp"
+        "/Users/riccardoesclapon/.nvm/versions/node/v22.16.0/bin/fluora-mcp"
       ],
       "env": {
         "FLUORA_API_URL": "https://2bwsfmjzdd.us-west-2.awsapprunner.com/api",

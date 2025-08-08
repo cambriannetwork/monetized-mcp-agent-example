@@ -150,25 +150,38 @@ This will cost 0.001 USDC on Base Sepolia testnet."""
         # Research prompt
         prompt = f"""Cycle #{self.cycle_count}: Advanced Solana Market Analysis
 {context}
-Make a REAL purchase to get the current SOL price:
+IMPORTANT: You have access to MCP tools. Use them DIRECTLY - do NOT use Task, WebSearch, or other tools to look for them.
 
-1. Use mcp__fluora__searchFluora to find the Cambrian API server
-2. Use mcp__fluora__callServerTool to call 'payment-methods' to get wallet address
-3. Use mcp__fluora__callServerTool to call 'make-purchase' with:
-   - itemId: "solanapricecurrent"
-   - params: {{"token_address": "So11111111111111111111111111111111111111112"}}
-   - paymentMethod: "USDC_BASE_SEPOLIA"
-   - itemPrice: 0.001
+Make a REAL purchase to get the current SOL price by following these exact steps:
 
-4. After getting the price, analyze it:
-   - Compare to previous cycles: {context}
-   - Identify trends
-   - Generate trading insights
+1. First, use the tool mcp__fluora__searchFluora with empty input {{}} to find servers
 
-5. Save your complete analysis to:
+2. Find the Cambrian API server from the results (it will have server ID starting with 9f2e4fe1)
+
+3. Use mcp__fluora__listServerTools with:
+   - serverName: "Cambrian API"
+   - mcpServerUrl: "http://localhost:80"
+
+4. Use mcp__fluora__callServerTool to call 'pricing-listing' first to see available items
+
+5. Use mcp__fluora__callServerTool to call 'payment-method' to get the wallet address
+
+6. Finally, use mcp__fluora__callServerTool to call 'make-purchase' with:
+   - serverId: "9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7"
+   - mcpServerUrl: "http://localhost:80"
+   - toolName: "make-purchase"
+   - args: {{
+       "itemId": "solanapricecurrent",
+       "params": {{"token_address": "So11111111111111111111111111111111111111112"}},
+       "paymentMethod": "USDC_BASE_SEPOLIA",
+       "itemPrice": 0.001,
+       "serverWalletAddress": (get this from payment-method response)
+     }}
+
+7. After getting the price, save your analysis to:
    {os.path.abspath(f'knowledge/research/findings/cycle_{self.cycle_count}_market_analysis.json')}
 
-Include: cycle number, timestamp, price, change %, trend analysis, and trading insights."""
+Include: cycle number, timestamp, price, trend analysis, and trading insights."""
         
         print("\n📈 Researching market conditions...")
         print("💳 Making REAL MCP purchases...")
