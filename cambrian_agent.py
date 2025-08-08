@@ -10,9 +10,12 @@ import os
 import sys
 import argparse
 import json
+import warnings
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
+from contextlib import redirect_stderr
+import io
 
 from claude_code_sdk import (
     query as claude_query,
@@ -27,6 +30,8 @@ from claude_code_sdk import (
 from src.persistence.state_manager import StateManager
 from src.persistence.query_tracker import QueryTracker
 from src.agent.goals import GoalManager
+from src.agent.research_engine import ResearchEngine
+from src.agent.research_strategies import ResearchStrategies
 from src.setup import SetupWizard, run_setup
 
 # Load environment variables
@@ -41,9 +46,12 @@ class CambrianMCPAgent:
         self.state_manager = StateManager(config)
         self.goal_manager = GoalManager(config)
         self.query_tracker = QueryTracker()
+        self.research_engine = ResearchEngine()
         self.cycle_count = 0
         self.running = False
         self.user_config = None
+        self.current_analysis = {}
+        self.current_signals = []
         
         # Load the MCP config
         with open('config/mcp_config.json') as f:
@@ -117,140 +125,206 @@ class CambrianMCPAgent:
         print(f"\n✅ Cycle #{self.cycle_count} completed")
     
     async def research_market_analysis(self):
-        """Research market conditions using REAL MCP purchases"""
+        """Intelligent progressive market research"""
         
-        # Load previous findings to build upon
-        previous_findings = []
+        print("\n📈 Starting intelligent market research...")
+        
+        # Get cached MCP details if available
+        mcp_cache = self.research_engine.get_mcp_cache()
+        
+        # Prepare current market state
+        current_price = None
+        latest_finding = None
+        
+        # Try to get latest price from recent findings
         findings_dir = Path("knowledge/research/findings")
         if findings_dir.exists():
-            recent_files = sorted(findings_dir.glob("*market_analysis.json"))[-5:]
-            for f in recent_files:
+            recent_files = sorted(findings_dir.glob("cycle_*_market_analysis.json"))
+            if recent_files:
                 try:
-                    with open(f) as file:
-                        previous_findings.append(json.load(file))
+                    with open(recent_files[-1]) as f:
+                        latest_finding = json.load(f)
+                        current_price = latest_finding.get('price')
                 except:
                     pass
         
-        # Get successful query patterns for this goal type
-        successful_sequence = self.query_tracker.get_query_sequence_for_goal("market_analysis")
-        previous_pattern = self.query_tracker.get_successful_pattern("market_analysis", "mcp__fluora__callServerTool")
+        # Perform deep analysis if we have data
+        if current_price:
+            self.current_analysis = self.research_engine.analyze_price_history(current_price, self.cycle_count)
+            self.current_signals = self.research_engine.generate_trading_signals(self.current_analysis)
+            
+            # Display analysis
+            print(f"\n📊 Market Analysis:")
+            print(f"  Price: ${current_price:.2f}")
+            if "trend" in self.current_analysis:
+                print(f"  Trend: {self.current_analysis['trend']['direction']} ({self.current_analysis['trend']['strength']:.1f}%)")
+            if "volatility_pct" in self.current_analysis:
+                print(f"  Volatility: {self.current_analysis['volatility_pct']:.1f}%")
+            
+            if self.current_signals:
+                print(f"\n📍 Trading Signals ({len(self.current_signals)}):")
+                for signal in self.current_signals[:3]:
+                    print(f"  • {signal['type']}: {signal['action']} - {signal['reason']}")
         
-        system_prompt = """You are a Cambrian Trading Agent researching Solana market conditions.
-You are making a REAL purchase from the Cambrian API.
-This will cost 0.001 USDC on Base Sepolia testnet."""
-        
-        # Configure options with fluora MCP server - use the mcpServers directly
-        options = ClaudeCodeOptions(
-            system_prompt=system_prompt,
-            mcp_servers=self.mcp_config['mcpServers'],  # Pass the whole mcpServers dict
-            allowed_tools=[
-                "mcp__fluora__searchFluora",
-                "mcp__fluora__listServerTools",
-                "mcp__fluora__callServerTool",
-                "Write"  # To save findings
-            ],
-            max_turns=150  # Allow plenty of turns for Claude to complete the full flow
+        # Generate intelligent prompt based on cycle and analysis
+        prompt = ResearchStrategies.get_progressive_market_analysis_prompt(
+            cycle=self.cycle_count,
+            analysis=self.current_analysis,
+            signals=self.current_signals,
+            mcp_cache=mcp_cache
         )
         
-        # Build context from previous findings
-        context = ""
-        if previous_findings:
-            context = "\nPrevious findings:\n"
-            for i, finding in enumerate(previous_findings[-3:], 1):
-                if 'price' in finding:
-                    context += f"- Cycle {finding.get('cycle', '?')}: SOL price ${finding['price']}\n"
+        # Advanced system prompt
+        system_prompt = """You are an advanced AI trading analyst for the Cambrian Trading Agent.
+You make REAL purchases from the Cambrian API (0.001 USDC per call on Base Sepolia).
+Your analysis should be progressively more sophisticated with each cycle.
+Focus on actionable insights and specific trading setups."""
         
-        # Add successful patterns to prompt if available
-        pattern_context = ""
-        if successful_sequence:
-            pattern_context = "\nPrevious successful query sequence:\n"
-            for i, query in enumerate(successful_sequence, 1):
-                pattern_context += f"{i}. {query['tool']} with params: {json.dumps(query['params'])}\n"
+        # Configure options
+        options = ClaudeCodeOptions(
+            system_prompt=system_prompt,
+            mcp_servers=self.mcp_config['mcpServers'],
+            allowed_tools=[
+                "mcp__fluora__searchFluora",
+                "mcp__fluora__listServerTools", 
+                "mcp__fluora__callServerTool",
+                "Write",
+                "Read"  # Allow reading previous findings
+            ],
+            max_turns=150
+        )
         
-        # Research prompt
-        prompt = f"""Cycle #{self.cycle_count}: Advanced Solana Market Analysis
-{context}
-{pattern_context}
-IMPORTANT: You have access to MCP tools. Use them DIRECTLY - do NOT use Task, WebSearch, or other tools to look for them.
-
-Make a REAL purchase to get the current SOL price by following these exact steps:
-
-1. First, use the tool mcp__fluora__searchFluora with empty input {{}} to find servers
-
-2. Find the Cambrian API server from the results (it will have server ID starting with 9f2e4fe1)
-
-3. Use mcp__fluora__listServerTools with:
-   - serverName: "Cambrian API"
-   - mcpServerUrl: "http://localhost:80"
-
-4. Use mcp__fluora__callServerTool to call 'pricing-listing' first to see available items
-
-5. Use mcp__fluora__callServerTool to call 'payment-method' to get the wallet address
-
-6. Finally, use mcp__fluora__callServerTool to call 'make-purchase' with:
-   - serverId: "9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7"
-   - mcpServerUrl: "http://localhost:80"
-   - toolName: "make-purchase"
-   - args: {{
-       "itemId": "solanapricecurrent",
-       "params": {{"token_address": "So11111111111111111111111111111111111111112"}},
-       "paymentMethod": "USDC_BASE_SEPOLIA",
-       "itemPrice": 0.001,
-       "serverWalletAddress": (get this from payment-method response)
-     }}
-
-7. After getting the price, save your analysis to:
-   {os.path.abspath(f'knowledge/research/findings/cycle_{self.cycle_count}_market_analysis.json')}
-
-Include: cycle number, timestamp, price, trend analysis, and trading insights."""
+        print(f"\n🧠 Executing Cycle {self.cycle_count} research strategy...")
         
-        print("\n📈 Researching market conditions...")
-        print("💳 Making REAL MCP purchases...")
-        
-        # Execute the query with timeout
+        # Track execution
         purchase_made = False
+        mcp_details_found = False
         messages_count = 0
         tools_used = []
-        successful_tools = []  # Track successful tool calls
+        current_price_found = None
+        analysis_saved = False
         
         try:
-            # No timeout - let Claude decide when complete
             async for message in claude_query(prompt=prompt, options=options):
                 messages_count += 1
                 
                 if isinstance(message, AssistantMessage):
-                    print(f"\n>>> Message {messages_count} from Claude")
                     for block in message.content:
                         if isinstance(block, TextBlock):
-                            print(f"Text: {block.text[:100]}...")
+                            # Extract and show key information
+                            text = str(block.text)
+                            
+                            # Look for price in the text
+                            if "price" in text.lower() and "$" in text:
+                                import re
+                                price_match = re.search(r'\$(\d+\.?\d*)', text)
+                                if price_match:
+                                    current_price_found = float(price_match.group(1))
+                                    print(f"\n💰 Price found: ${current_price_found:.2f}")
+                            
+                            # Show trading signals
+                            if any(keyword in text.lower() for keyword in ['signal', 'setup', 'entry', 'target']):
+                                # Extract just the relevant part
+                                lines = text.split('\n')
+                                for line in lines:
+                                    if any(keyword in line.lower() for keyword in ['signal', 'setup', 'entry', 'target', 'stop', 'profit']):
+                                        print(f"   📍 {line.strip()}")
+                        
                         elif isinstance(block, ToolUseBlock):
                             tools_used.append(block.name)
-                            print(f"🔧 Tool: {block.name}")
-                            if isinstance(block.input, dict):
-                                print(f"Input: {json.dumps(block.input, indent=2)[:200]}...")
                             
-                            if (block.name == 'mcp__fluora__callServerTool' and 
-                                isinstance(block.input, dict) and 
-                                block.input.get('toolName') == 'make-purchase'):
-                                purchase_made = True
+                            # Track Write operations
+                            if block.name == 'Write':
+                                analysis_saved = True
+                                print(f"💾 Saving analysis...")
+                            
+                            # Track MCP details for caching
+                            elif block.name == 'mcp__fluora__callServerTool' and isinstance(block.input, dict):
+                                if block.input.get('toolName') == 'payment-methods':
+                                    # Will get wallet address in response
+                                    pass
+                                elif block.input.get('toolName') == 'make-purchase':
+                                    purchase_made = True
+                                    print(f"💳 Making purchase: {block.input.get('args', {}).get('itemId', 'unknown')}")
+                                    # Cache the server details
+                                    if not mcp_cache and 'serverId' in block.input:
+                                        server_id = block.input.get('serverId')
+                                        server_url = block.input.get('mcpServerUrl')
+                                        wallet = block.input.get('args', {}).get('serverWalletAddress')
+                                        if server_id and server_url and wallet:
+                                            self.research_engine.save_mcp_cache(server_id, server_url, wallet)
+                                            print("✅ Cached MCP connection")
                 
-                elif isinstance(message, ResultMessage):
-                    print(f"<<< Result for message {messages_count}")
+                # Stop after reasonable messages
+                if messages_count > 20:  # Reduced from 30
+                    print(f"\n⚡ Stopping at {messages_count} messages (limit reached)")
+                    break
         
         except Exception as e:
-            print(f"\n❌ Error during query: {e}")
+            print(f"\n❌ Error: {e}")
         
-        print(f"\n📊 Summary:")
-        print(f"  - Messages: {messages_count}")
-        print(f"  - Tools used: {tools_used}")
+        # Summary
+        print(f"\n📊 Cycle {self.cycle_count} Summary:")
+        print(f"  Messages: {messages_count}")
+        print(f"  Tools used: {len(set(tools_used))}")
         
         if purchase_made:
-            print("\n✅ Real MCP purchase completed!")
-            print("🔗 Check transaction at: https://sepolia.basescan.org/address/0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3")
+            print("  ✅ Purchase completed")
+            
+            # If we found a price, update analysis
+            if current_price_found:
+                # Update our analysis with the new price
+                self.current_analysis = self.research_engine.analyze_price_history(current_price_found, self.cycle_count)
+                new_signals = self.research_engine.generate_trading_signals(self.current_analysis)
+                
+                # Show key metrics
+                if "price_change_pct" in self.current_analysis:
+                    print(f"  📈 Price change: {self.current_analysis['price_change_pct']:+.2f}%")
+                if "trend" in self.current_analysis:
+                    trend = self.current_analysis['trend']
+                    print(f"  📊 Trend: {trend['direction']} ({trend['consecutive_moves']} moves)")
+                if "volatility_pct" in self.current_analysis:
+                    print(f"  📉 Volatility: {self.current_analysis['volatility_pct']:.1f}%")
+                
+                # Show new signals
+                if new_signals:
+                    print(f"\n  🎯 New Signals Generated:")
+                    for signal in new_signals[:2]:
+                        print(f"    • {signal['type']}: {signal['action']}")
+                
+                # Save minimal finding if analysis wasn't saved by Claude
+                if not analysis_saved:
+                    findings_dir = Path("knowledge/research/findings")
+                    findings_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    finding = {
+                        "cycle": self.cycle_count,
+                        "timestamp": datetime.now().isoformat(),
+                        "price": current_price_found,
+                        "analysis": {
+                            "trend": self.current_analysis.get("trend"),
+                            "volatility": self.current_analysis.get("volatility_pct"),
+                            "signals": len(new_signals)
+                        }
+                    }
+                    
+                    with open(findings_dir / f"cycle_{self.cycle_count}_market_analysis.json", 'w') as f:
+                        json.dump(finding, f, indent=2)
+                    print(f"  💾 Saved minimal findings")
+            
+            # Evolve goals based on findings
+            if self.current_signals:
+                current_goals = await self.goal_manager.get_active_goals()
+                evolved_goals = self.research_engine.evolve_goals(
+                    [g.to_dict() for g in current_goals],
+                    self.current_analysis,
+                    self.current_signals
+                )
+                
+                if len(evolved_goals) > len(current_goals):
+                    print(f"  🎯 Generated {len(evolved_goals) - len(current_goals)} new goals")
         else:
-            print("\n⚠️  No MCP purchase detected this cycle")
-            if 'mcp__fluora__searchFluora' not in tools_used and 'mcp__fluora__callServerTool' not in tools_used:
-                print("❗ MCP tools were not available - fluora-mcp may not be installed or configured correctly")
+            print("  ⚠️  No purchase made this cycle")
     
     async def research_arbitrage_opportunities(self):
         """Research arbitrage opportunities across DEXs"""
