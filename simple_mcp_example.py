@@ -43,8 +43,9 @@ This will cost 0.001 USDC on Base Sepolia testnet."""
         system_prompt=system_prompt,
         mcp_servers=mcp_config['mcpServers'],
         allowed_tools=[
-            "mcp__fluora__searchFluora",
-            "mcp__fluora__callServerTool"
+            "mcp__fluora__exploreServices",
+            "mcp__fluora__getServiceDetails",
+            "mcp__fluora__callServiceTool"
         ],
         max_turns=10
     )
@@ -52,9 +53,9 @@ This will cost 0.001 USDC on Base Sepolia testnet."""
     # Prompt with clear instructions
     prompt = """Make a REAL purchase to get the current SOL price:
 
-1. Use mcp__fluora__searchFluora to find the Cambrian API server
-2. Use mcp__fluora__callServerTool to call 'payment-methods' to get wallet address
-3. Use mcp__fluora__callServerTool to call 'make-purchase' with:
+1. Use mcp__fluora__exploreServices to find the Cambrian API server
+2. Use mcp__fluora__callServiceTool to call 'payment-methods' to get wallet address
+3. Use mcp__fluora__callServiceTool to call 'make-purchase' with:
    - itemId: "solanapricecurrent"
    - params: {"token_address": "So11111111111111111111111111111111111111112"}
    - paymentMethod: "USDC_BASE_SEPOLIA"

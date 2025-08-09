@@ -1,6 +1,6 @@
-# Complete Setup Guide
+# Detailed Setup Guide
 
-This guide will walk you through setting up everything needed to run the Cambrian Trading Agent with real MCP purchases.
+This guide will walk you through setting up the Monetized MCP Agent Example step by step.
 
 ## Prerequisites
 

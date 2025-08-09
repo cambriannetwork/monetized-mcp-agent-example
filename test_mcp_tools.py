@@ -19,16 +19,16 @@ async def test_mcp_tools():
         system_prompt="You are testing MCP tool availability.",
         mcp_servers=mcp_config['mcpServers'],
         allowed_tools=[
-            "mcp__fluora__searchFluora",
-            "mcp__fluora__listServerTools", 
-            "mcp__fluora__callServerTool"
+            "mcp__fluora__exploreServices",
+            "mcp__fluora__getServiceDetails", 
+            "mcp__fluora__callServiceTool"
         ],
         max_turns=3
     )
     
     # Simple prompt to test tool availability
-    prompt = """Please use the mcp__fluora__searchFluora tool to search for servers.
-Just call the tool with an empty input {} to list all available servers."""
+    prompt = """Please use the mcp__fluora__exploreServices tool to explore available services.
+Just call the tool with an empty category '' to list all available servers."""
     
     print("Testing MCP tools availability...")
     print("=" * 60)

@@ -131,9 +131,9 @@ This will cost 0.001 USDC on Base Sepolia testnet."""
             system_prompt=system_prompt,
             mcp_servers=self.mcp_config['mcpServers'],  # Pass the whole mcpServers dict
             allowed_tools=[
-                "mcp__fluora__searchFluora",
-                "mcp__fluora__listServerTools",
-                "mcp__fluora__callServerTool",
+                "mcp__fluora__exploreServices",
+                "mcp__fluora__getServiceDetails",
+                "mcp__fluora__callServiceTool",
                 "Write"  # To save findings
             ],
             max_turns=10  # More turns needed for the full purchase flow
@@ -154,19 +154,18 @@ IMPORTANT: You have access to MCP tools. Use them DIRECTLY - do NOT use Task, We
 
 Make a REAL purchase to get the current SOL price by following these exact steps:
 
-1. First, use the tool mcp__fluora__searchFluora with empty input {{}} to find servers
+1. First, use the tool mcp__fluora__exploreServices with {{'category': ''}} to find servers
 
 2. Find the Cambrian API server from the results (it will have server ID starting with 9f2e4fe1)
 
-3. Use mcp__fluora__listServerTools with:
-   - serverName: "Cambrian API"
-   - mcpServerUrl: "http://localhost:80"
+3. Use mcp__fluora__getServiceDetails with:
+   - serverId: "9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7"
 
-4. Use mcp__fluora__callServerTool to call 'pricing-listing' first to see available items
+4. Use mcp__fluora__callServiceTool to call 'pricing-listing' first to see available items
 
-5. Use mcp__fluora__callServerTool to call 'payment-method' to get the wallet address
+5. Use mcp__fluora__callServiceTool to call 'payment-method' to get the wallet address
 
-6. Finally, use mcp__fluora__callServerTool to call 'make-purchase' with:
+6. Finally, use mcp__fluora__callServiceTool to call 'make-purchase' with:
    - serverId: "9f2e4fe1-dc04-4ed1-bab4-0f374cb9f8a7"
    - mcpServerUrl: "http://localhost:80"
    - toolName: "make-purchase"
@@ -208,7 +207,7 @@ Include: cycle number, timestamp, price, trend analysis, and trading insights.""
                                 if isinstance(block.input, dict):
                                     print(f"Input: {json.dumps(block.input, indent=2)[:200]}...")
                                 
-                                if (block.name == 'mcp__fluora__callServerTool' and 
+                                if (block.name == 'mcp__fluora__callServiceTool' and 
                                     isinstance(block.input, dict) and 
                                     block.input.get('toolName') == 'make-purchase'):
                                     purchase_made = True
@@ -230,7 +229,7 @@ Include: cycle number, timestamp, price, trend analysis, and trading insights.""
             print("🔗 Check transaction at: https://sepolia.basescan.org/address/0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3")
         else:
             print("\n⚠️  No MCP purchase detected this cycle")
-            if 'mcp__fluora__searchFluora' not in tools_used and 'mcp__fluora__callServerTool' not in tools_used:
+            if 'mcp__fluora__exploreServices' not in tools_used and 'mcp__fluora__callServiceTool' not in tools_used:
                 print("❗ MCP tools were not available - fluora-mcp may not be installed or configured correctly")
     
     async def research_arbitrage_opportunities(self):
@@ -245,9 +244,9 @@ Use the fluora MCP server to purchase pool and price data from different DEXs.""
             system_prompt=system_prompt,
             mcp_servers=self.mcp_config['mcpServers'],
             allowed_tools=[
-                "mcp__fluora__searchFluora",
-                "mcp__fluora__listServerTools",
-                "mcp__fluora__callServerTool",
+                "mcp__fluora__exploreServices",
+                "mcp__fluora__getServiceDetails",
+                "mcp__fluora__callServiceTool",
                 "Write"
             ],
             max_turns=10
@@ -259,7 +258,7 @@ Make REAL purchases for pool data if available."""
         async for message in query(prompt=prompt, options=options):
             if isinstance(message, AssistantMessage):
                 for block in message.content:
-                    if isinstance(block, ToolUseBlock) and block.name == "mcp__fluora__callServerTool" and block.input.get('toolName') == 'make-purchase':
+                    if isinstance(block, ToolUseBlock) and block.name == "mcp__fluora__callServiceTool" and block.input.get('toolName') == 'make-purchase':
                         print(f"💳 Making MCP purchase: {block.input.get('itemId', 'unknown')}")
     
     async def research_general(self):
