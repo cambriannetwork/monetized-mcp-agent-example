@@ -6,7 +6,7 @@
       "description": "Track and analyze SOL price movements and identify trends",
       "status": "active",
       "priority": "high",
-      "created_at": "2025-08-09T00:59:35.798947",
+      "created_at": "2025-08-09T02:43:05.377011",
       "progress": 0,
       "metrics": [
         "price_accuracy",
@@ -19,7 +19,7 @@
       "description": "Analyze volatility patterns to optimize entry and exit timing",
       "status": "active",
       "priority": "medium",
-      "created_at": "2025-08-09T00:59:35.798965",
+      "created_at": "2025-08-09T02:43:05.377023",
       "progress": 0,
       "metrics": [
         "volatility_prediction",

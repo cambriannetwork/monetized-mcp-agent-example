@@ -37,35 +37,20 @@ class MCPDataCollector:
     
     async def collect_price_history(self, num_points: int = 100) -> Tuple[List[float], List[str]]:
         """
-        Collect price history data points
-        
-        For now, returns cached/simulated data. In production, this would
-        make actual MCP calls to get historical data.
+        Collect price history data points from REAL MCP data only
         """
-        # Check if we have enough cached data
+        # Check if we have enough cached REAL data
         if len(self.price_cache["prices"]) >= num_points:
             return (
                 self.price_cache["prices"][-num_points:],
                 self.price_cache["timestamps"][-num_points:]
             )
         
-        # In production, this would make MCP calls
-        # For now, return simulated realistic price data
-        prices, timestamps = self._generate_realistic_price_data(num_points)
-        
-        # Update cache
-        self.price_cache["prices"].extend(prices)
-        self.price_cache["timestamps"].extend(timestamps)
-        self.price_cache["last_updated"] = datetime.now().isoformat()
-        
-        # Keep only last 1000 points in cache
-        if len(self.price_cache["prices"]) > 1000:
-            self.price_cache["prices"] = self.price_cache["prices"][-1000:]
-            self.price_cache["timestamps"] = self.price_cache["timestamps"][-1000:]
-        
-        self._save_cache()
-        
-        return prices, timestamps
+        # NOT ENOUGH REAL DATA - MUST GET MORE FROM MCP
+        raise ValueError(
+            f"Insufficient REAL price data! Have {len(self.price_cache['prices'])} points, "
+            f"need {num_points}. The agent must collect more real MCP data before running strategies."
+        )
     
     def add_new_price(self, price: float, timestamp: Optional[str] = None):
         """Add a new price point to the cache"""
@@ -96,38 +81,8 @@ class MCPDataCollector:
                 self.price_cache["timestamps"]
             )
     
-    def _generate_realistic_price_data(self, num_points: int) -> Tuple[List[float], List[str]]:
-        """Generate realistic price data for testing"""
-        import numpy as np
-        
-        # Start from a base price (e.g., current SOL price around 180)
-        base_price = 180.0
-        volatility = 0.02  # 2% daily volatility
-        trend = 0.0001  # Slight upward trend
-        
-        prices = []
-        timestamps = []
-        
-        current_price = base_price
-        current_time = datetime.now() - timedelta(hours=num_points)
-        
-        for i in range(num_points):
-            # Random walk with trend
-            change = np.random.normal(trend, volatility)
-            current_price *= (1 + change)
-            
-            # Add some mean reversion
-            if current_price > base_price * 1.1:
-                current_price *= 0.99
-            elif current_price < base_price * 0.9:
-                current_price *= 1.01
-            
-            prices.append(round(current_price, 2))
-            timestamps.append(current_time.isoformat())
-            
-            current_time += timedelta(hours=1)
-        
-        return prices, timestamps
+    # REMOVED: No more fake data generation!
+    # This method has been deleted to prevent any simulated data usage
     
     async def collect_multi_token_data(self, tokens: List[str], num_points: int = 50) -> Dict[str, Dict]:
         """
@@ -138,19 +93,14 @@ class MCPDataCollector:
         data = {}
         
         for token in tokens:
-            # In production: Make MCP call for each token
-            # For now: Generate correlated data
+            # MUST USE REAL MCP DATA FOR EACH TOKEN
             if token == "SOL":
                 prices, timestamps = await self.collect_price_history(num_points)
-            elif token == "BTC":
-                # Generate BTC data (correlated with SOL)
-                sol_prices, timestamps = await self.collect_price_history(num_points)
-                prices = [p * 250 for p in sol_prices]  # BTC ~250x SOL price
-                prices = [p * (1 + np.random.normal(0, 0.01)) for p in prices]
             else:
-                # Other tokens
-                sol_prices, timestamps = await self.collect_price_history(num_points)
-                prices = [p * np.random.uniform(0.1, 2.0) for p in sol_prices]
+                raise NotImplementedError(
+                    f"Token {token} requires real MCP data integration. "
+                    "No simulated data allowed!"
+                )
             
             data[token] = {
                 "prices": prices,

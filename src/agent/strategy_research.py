@@ -52,14 +52,30 @@ class StrategyResearchEngine:
         
         # Collect data
         provider = MCPStrategyDataProvider()
-        market_data = await provider.get_strategy_development_data()
-        
-        prices = market_data["prices"]
-        timestamps = market_data["timestamps"]
-        
-        print(f"  📊 Analyzing {len(prices)} price points")
-        print(f"  📈 Price range: ${min(prices):.2f} - ${max(prices):.2f}")
-        print(f"  📉 Volatility: {market_data['metrics']['volatility']:.1%}")
+        try:
+            market_data = await provider.get_strategy_development_data()
+            
+            prices = market_data["prices"]
+            timestamps = market_data["timestamps"]
+            
+            print(f"  📊 Analyzing {len(prices)} REAL price points")
+            print(f"  📈 Price range: ${min(prices):.2f} - ${max(prices):.2f}")
+            print(f"  📉 Volatility: {market_data['metrics']['volatility']:.1%}")
+        except ValueError as e:
+            print(f"\n  ⚠️  {e}")
+            print(f"  ❌ Cannot run strategies without sufficient REAL data!")
+            print(f"  💡 The agent needs to collect more MCP price data first.")
+            return {
+                "cycle": cycle,
+                "timestamp": datetime.now().isoformat(),
+                "error": str(e),
+                "data_points": 0,
+                "strategies_tested": 0,
+                "profitable_strategies": 0,
+                "best_strategy": None,
+                "market_conditions": {},
+                "recommendations": ["Collect more real MCP data before strategy development"]
+            }
         
         # Develop strategies
         strategies = self.strategy_developer.develop_strategies(prices, timestamps)

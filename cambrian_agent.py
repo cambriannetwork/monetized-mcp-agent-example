@@ -231,6 +231,14 @@ Focus on actionable insights and specific trading setups."""
                                         current_price_found = float(price_match.group(1))
                                         self._last_price_found = current_price_found  # Track for strategy research
                                         print(f"\n💰 Price found: ${current_price_found:.2f}")
+                                        
+                                        # SAVE REAL MCP PRICE DATA
+                                        if purchase_made:
+                                            self.real_data_collector.add_real_mcp_price(
+                                                price=current_price_found,
+                                                timestamp=datetime.now().isoformat(),
+                                                source="MCP_Purchase"
+                                            )
                                 
                                 # Show trading signals
                                 if any(keyword in text.lower() for keyword in ['signal', 'setup', 'entry', 'target']):
