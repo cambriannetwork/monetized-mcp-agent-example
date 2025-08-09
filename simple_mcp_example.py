@@ -47,7 +47,8 @@ This will cost 0.001 USDC on Base Sepolia testnet."""
             "mcp__fluora__getServiceDetails",
             "mcp__fluora__callServiceTool"
         ],
-        max_turns=10
+        max_turns=10,
+        model="claude-sonnet-4-20250514"
     )
     
     # Prompt with clear instructions

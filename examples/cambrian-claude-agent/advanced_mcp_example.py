@@ -45,7 +45,8 @@ class AdvancedMCPClient:
                 "mcp__fluora__exploreServices",
                 "mcp__fluora__getServiceDetails"
             ],
-            max_turns=5
+            max_turns=5,
+            model="claude-sonnet-4-20250514"
         )
         
         prompt = """Please explore all available MCP services:
@@ -77,7 +78,8 @@ class AdvancedMCPClient:
                 "mcp__fluora__getServiceDetails",
                 "mcp__fluora__callServiceTool"
             ],
-            max_turns=10
+            max_turns=10,
+            model="claude-sonnet-4-20250514"  
         )
         
         prompt = """Get comprehensive Solana metrics from the Cambrian API:
@@ -114,7 +116,8 @@ class AdvancedMCPClient:
                 "mcp__fluora__callServiceTool",
                 "Write"
             ],
-            max_turns=10
+            max_turns=10,
+            model="claude-sonnet-4-20250514"  
         )
         
         prompt = """Analyze potential arbitrage opportunities:
@@ -143,7 +146,8 @@ class AdvancedMCPClient:
                 "mcp__fluora__exploreServices",
                 "mcp__fluora__callServiceTool"
             ],
-            max_turns=8
+            max_turns=8,
+            model="claude-sonnet-4-20250514"  
         )
         
         prompt = """Check for whale activity data:
@@ -183,7 +187,8 @@ class AdvancedMCPClient:
                 "mcp__fluora__callServiceTool",
                 "Write"
             ],
-            max_turns=8
+            max_turns=8,
+            model="claude-sonnet-4-20250514"  
         )
         
         context = "Recent market data:\n"

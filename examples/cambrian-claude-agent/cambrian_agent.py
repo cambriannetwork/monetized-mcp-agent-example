@@ -191,7 +191,8 @@ Focus on actionable insights and specific trading setups."""
                 "mcp__fluora__callServiceTool",
                 "Write"  # To save findings
             ],
-            max_turns=150
+            max_turns=150,
+            model="claude-sonnet-4-20250514"
         )
         
         # Research prompt

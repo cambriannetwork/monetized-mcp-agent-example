@@ -23,7 +23,8 @@ async def test_mcp_tools():
             "mcp__fluora__getServiceDetails", 
             "mcp__fluora__callServiceTool"
         ],
-        max_turns=3
+        max_turns=3,
+        model="claude-sonnet-4-20250514"
     )
     
     # Simple prompt to test tool availability
