@@ -1,0 +1,43 @@
+{
+  "cycle": 20,
+  "timestamp": "2025-08-09T01:35:08.162623",
+  "data_points": 100,
+  "strategies_tested": 5,
+  "profitable_strategies": 2,
+  "best_strategy": {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T01:35:08.160218"
+  },
+  "market_conditions": {
+    "avg_price": 165.49360000000001,
+    "volatility": 0.3016674027880941,
+    "trend": -0.08483932825846938
+  },
+  "recommendations": [
+    "High volatility detected - Use wider stops and smaller positions",
+    "Consider volatility-based strategies (Squeeze, Straddles)",
+    "Deploy Momentum_Reversal with real capital",
+    "Expected return: 9.7%"
+  ]
+}

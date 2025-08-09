@@ -32,6 +32,7 @@ from src.persistence.query_tracker import QueryTracker
 from src.agent.goals import GoalManager
 from src.agent.research_engine import ResearchEngine
 from src.agent.research_strategies import ResearchStrategies
+from src.agent.strategy_research import StrategyResearchEngine, generate_strategy_research_prompt
 from src.setup import SetupWizard, run_setup
 
 # Load environment variables
@@ -47,6 +48,7 @@ class CambrianMCPAgent:
         self.goal_manager = GoalManager(config)
         self.query_tracker = QueryTracker()
         self.research_engine = ResearchEngine()
+        self.strategy_engine = StrategyResearchEngine()
         self.cycle_count = 0
         self.running = False
         self.user_config = None
@@ -103,8 +105,12 @@ class CambrianMCPAgent:
             goal = active_goals[0]
             print(f"🔬 Working on: {goal.title}")
             
+            # Strategy research every 5 cycles or on strategy-related goals
+            if (self.cycle_count % 5 == 0 or 
+                any(keyword in goal.title.lower() for keyword in ["strategy", "profit", "backtest", "trading"])):
+                await self.research_strategies()
             # Execute research based on goal type
-            if any(keyword in goal.title.lower() for keyword in ["market", "price", "trend", "analysis"]):
+            elif any(keyword in goal.title.lower() for keyword in ["market", "price", "trend", "analysis"]):
                 await self.research_market_analysis()
             elif "arbitrage" in goal.title.lower():
                 await self.research_arbitrage_opportunities()
@@ -205,61 +211,69 @@ Focus on actionable insights and specific trading setups."""
         analysis_saved = False
         
         try:
-            async for message in claude_query(prompt=prompt, options=options):
-                messages_count += 1
-                
-                if isinstance(message, AssistantMessage):
-                    for block in message.content:
-                        if isinstance(block, TextBlock):
-                            # Extract and show key information
-                            text = str(block.text)
+            # Suppress RuntimeError about cancel scope
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore")
+                async for message in claude_query(prompt=prompt, options=options):
+                    messages_count += 1
+                    
+                    if isinstance(message, AssistantMessage):
+                        for block in message.content:
+                            if isinstance(block, TextBlock):
+                                # Extract and show key information
+                                text = str(block.text)
+                                
+                                # Look for price in the text
+                                if "price" in text.lower() and "$" in text:
+                                    import re
+                                    price_match = re.search(r'\$(\d+\.?\d*)', text)
+                                    if price_match:
+                                        current_price_found = float(price_match.group(1))
+                                        self._last_price_found = current_price_found  # Track for strategy research
+                                        print(f"\n💰 Price found: ${current_price_found:.2f}")
+                                
+                                # Show trading signals
+                                if any(keyword in text.lower() for keyword in ['signal', 'setup', 'entry', 'target']):
+                                    # Extract just the relevant part
+                                    lines = text.split('\n')
+                                    for line in lines:
+                                        if any(keyword in line.lower() for keyword in ['signal', 'setup', 'entry', 'target', 'stop', 'profit']):
+                                            print(f"   📍 {line.strip()}")
                             
-                            # Look for price in the text
-                            if "price" in text.lower() and "$" in text:
-                                import re
-                                price_match = re.search(r'\$(\d+\.?\d*)', text)
-                                if price_match:
-                                    current_price_found = float(price_match.group(1))
-                                    print(f"\n💰 Price found: ${current_price_found:.2f}")
-                            
-                            # Show trading signals
-                            if any(keyword in text.lower() for keyword in ['signal', 'setup', 'entry', 'target']):
-                                # Extract just the relevant part
-                                lines = text.split('\n')
-                                for line in lines:
-                                    if any(keyword in line.lower() for keyword in ['signal', 'setup', 'entry', 'target', 'stop', 'profit']):
-                                        print(f"   📍 {line.strip()}")
-                        
-                        elif isinstance(block, ToolUseBlock):
-                            tools_used.append(block.name)
-                            
-                            # Track Write operations
-                            if block.name == 'Write':
-                                analysis_saved = True
-                                print(f"💾 Saving analysis...")
-                            
-                            # Track MCP details for caching
-                            elif block.name == 'mcp__fluora__callServerTool' and isinstance(block.input, dict):
-                                if block.input.get('toolName') == 'payment-methods':
-                                    # Will get wallet address in response
-                                    pass
-                                elif block.input.get('toolName') == 'make-purchase':
-                                    purchase_made = True
-                                    print(f"💳 Making purchase: {block.input.get('args', {}).get('itemId', 'unknown')}")
-                                    # Cache the server details
-                                    if not mcp_cache and 'serverId' in block.input:
-                                        server_id = block.input.get('serverId')
-                                        server_url = block.input.get('mcpServerUrl')
-                                        wallet = block.input.get('args', {}).get('serverWalletAddress')
-                                        if server_id and server_url and wallet:
-                                            self.research_engine.save_mcp_cache(server_id, server_url, wallet)
-                                            print("✅ Cached MCP connection")
-                
-                # Stop after reasonable messages
-                if messages_count > 20:  # Reduced from 30
-                    print(f"\n⚡ Stopping at {messages_count} messages (limit reached)")
-                    break
+                            elif isinstance(block, ToolUseBlock):
+                                tools_used.append(block.name)
+                                
+                                # Track Write operations
+                                if block.name == 'Write':
+                                    analysis_saved = True
+                                    print(f"💾 Saving analysis...")
+                                
+                                # Track MCP details for caching
+                                elif block.name == 'mcp__fluora__callServerTool' and isinstance(block.input, dict):
+                                    if block.input.get('toolName') == 'payment-methods':
+                                        # Will get wallet address in response
+                                        pass
+                                    elif block.input.get('toolName') == 'make-purchase':
+                                        purchase_made = True
+                                        print(f"💳 Making purchase: {block.input.get('args', {}).get('itemId', 'unknown')}")
+                                        # Cache the server details
+                                        if not mcp_cache and 'serverId' in block.input:
+                                            server_id = block.input.get('serverId')
+                                            server_url = block.input.get('mcpServerUrl')
+                                            wallet = block.input.get('args', {}).get('serverWalletAddress')
+                                            if server_id and server_url and wallet:
+                                                self.research_engine.save_mcp_cache(server_id, server_url, wallet)
+                                                print("✅ Cached MCP connection")
+                    
+                    # Stop after reasonable messages
+                    if messages_count > 20:  # Reduced from 30
+                        print(f"\n⚡ Stopping at {messages_count} messages (limit reached)")
+                        break
         
+        except RuntimeError as e:
+            # Ignore cancel scope errors
+            if "cancel scope" not in str(e):
+                print(f"\n❌ RuntimeError: {e}")
         except Exception as e:
             print(f"\n❌ Error: {e}")
         
@@ -349,11 +363,52 @@ Use the fluora MCP server to purchase pool and price data from different DEXs.""
         prompt = f"""Research arbitrage opportunities by comparing prices across DEXs.
 Make REAL purchases for pool data if available."""
         
-        async for message in query(prompt=prompt, options=options):
-            if isinstance(message, AssistantMessage):
-                for block in message.content:
-                    if isinstance(block, ToolUseBlock) and block.name == "mcp__fluora__callServerTool" and block.input.get('toolName') == 'make-purchase':
-                        print(f"💳 Making MCP purchase: {block.input.get('itemId', 'unknown')}")
+        try:
+            # Suppress RuntimeError about cancel scope
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore")
+                async for message in claude_query(prompt=prompt, options=options):
+                    if isinstance(message, AssistantMessage):
+                        for block in message.content:
+                            if isinstance(block, ToolUseBlock) and block.name == "mcp__fluora__callServerTool" and block.input.get('toolName') == 'make-purchase':
+                                print(f"💳 Making MCP purchase: {block.input.get('itemId', 'unknown')}")
+        except RuntimeError as e:
+            # Ignore cancel scope errors
+            if "cancel scope" not in str(e):
+                print(f"\n❌ RuntimeError: {e}")
+        except Exception as e:
+            print(f"\n❌ Error: {e}")
+    
+    async def research_strategies(self):
+        """Research and develop profitable trading strategies"""
+        print("\n💰 Researching profitable trading strategies...")
+        
+        # Get current progress
+        progress = self.strategy_engine.get_strategy_progress()
+        
+        # Run strategy research
+        report = await self.strategy_engine.research_profitable_strategies(self.cycle_count)
+        
+        # Show results
+        if report['profitable_strategies'] > 0:
+            print(f"\n✅ Found {report['profitable_strategies']} profitable strategies!")
+            if report['best_strategy']:
+                best = report['best_strategy']
+                print(f"   Best: {best['name']} - Score: {best['evaluation']['score']}/100")
+                print(f"   Expected profit: {best['backtest']['total_pnl_percent']:.1f}%")
+        
+        # Update data collector with current price if found
+        if hasattr(self, '_last_price_found') and self._last_price_found:
+            self.strategy_engine.data_collector.add_new_price(self._last_price_found)
+        
+        # Generate live signals
+        if progress['ready_for_deployment'] and hasattr(self, '_last_price_found'):
+            signals = self.strategy_engine.get_live_signals(self._last_price_found)
+            if signals:
+                print(f"\n🎯 Live Trading Signals:")
+                for sig in signals:
+                    print(f"   • {sig['strategy']}: {sig['signal']['action']} @ ${self._last_price_found:.2f}")
+                    print(f"     Stop: ${sig['signal']['stop']:.2f}, Target: ${sig['signal']['target']:.2f}")
     
     async def research_general(self):
         """General research"""
@@ -430,12 +485,22 @@ Format exactly as shown (include ALL fields):
 Make the goals diverse and complementary, covering different aspects of Solana trading."""
         
         messages_count = 0
-        async for message in query(prompt=prompt, options=options):
-            messages_count += 1
-            if isinstance(message, AssistantMessage):
-                for block in message.content:
-                    if isinstance(block, ToolUseBlock) and block.name == "Write":
-                        print(f"📝 Writing goals to: {block.input.get('file_path', 'unknown')}")
+        try:
+            # Suppress RuntimeError about cancel scope
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore")
+                async for message in claude_query(prompt=prompt, options=options):
+                    messages_count += 1
+                    if isinstance(message, AssistantMessage):
+                        for block in message.content:
+                            if isinstance(block, ToolUseBlock) and block.name == "Write":
+                                print(f"📝 Writing goals to: {block.input.get('file_path', 'unknown')}")
+        except RuntimeError as e:
+            # Ignore cancel scope errors
+            if "cancel scope" not in str(e):
+                print(f"\n❌ RuntimeError: {e}")
+        except Exception as e:
+            print(f"\n❌ Error: {e}")
         
         print(f"✅ Goal generation complete (messages: {messages_count})")
     
@@ -469,6 +534,9 @@ Make the goals diverse and complementary, covering different aspects of Solana t
 
 async def main():
     """Main entry point"""
+    
+    # Suppress specific RuntimeError about cancel scope
+    warnings.filterwarnings("ignore", message=".*cancel scope.*different task.*")
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Cambrian Trading Agent")
@@ -533,4 +601,27 @@ async def main():
 
 
 if __name__ == "__main__":
-    anyio.run(main)
+    # Suppress specific RuntimeError warnings
+    import logging
+    logging.getLogger("anyio").setLevel(logging.ERROR)
+    
+    # Configure asyncio to suppress task exceptions
+    import asyncio
+    
+    def exception_handler(loop, context):
+        # Suppress the specific RuntimeError about cancel scope
+        exception = context.get('exception')
+        if isinstance(exception, RuntimeError) and 'cancel scope' in str(exception):
+            return  # Silently ignore
+        # Default handler for other exceptions
+        loop.default_exception_handler(context)
+    
+    # Run with custom exception handler
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.set_exception_handler(exception_handler)
+    
+    try:
+        anyio.run(main)
+    finally:
+        loop.close()

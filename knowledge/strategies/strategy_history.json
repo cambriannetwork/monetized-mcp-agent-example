@@ -1,0 +1,1490 @@
+[
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:17:35.919917"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:17:35.919967"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T01:17:35.919991"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:17:35.920013"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T01:17:35.920058"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:21:32.259127"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:21:32.259220"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T01:21:32.259256"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:21:32.259295"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T01:21:32.259355"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:25:33.998815"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:25:33.998887"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T01:25:33.998919"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:25:33.998948"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T01:25:33.999009"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:35:08.160082"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:35:08.160176"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T01:35:08.160218"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:35:08.160254"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T01:35:08.160340"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:42:49.068421"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:42:49.068515"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T01:42:49.068559"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:42:49.068596"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T01:42:49.068684"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:47:38.295792"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:47:38.295884"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T01:47:38.295926"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:47:38.295962"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T01:47:38.296050"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:53:49.287091"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:53:49.287207"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T01:53:49.287253"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:53:49.287293"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T01:53:49.287394"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:59:53.425953"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:59:53.426051"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T01:59:53.426094"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T01:59:53.426130"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T01:59:53.426219"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:04:31.094750"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:04:31.094846"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T02:04:31.094887"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:04:31.094922"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T02:04:31.095010"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:10:43.099127"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:10:43.099221"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T02:10:43.099262"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:10:43.099297"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T02:10:43.099384"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:16:37.014044"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:16:37.014141"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T02:16:37.014182"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:16:37.014217"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T02:16:37.014308"
+  },
+  {
+    "name": "MA_Crossover_5_15",
+    "type": "trend_following",
+    "parameters": {
+      "fast_ma": 5,
+      "slow_ma": 15
+    },
+    "backtest": {
+      "total_trades": 7,
+      "win_rate": 28.57142857142857,
+      "profit_factor": 0.29256469799945545,
+      "total_pnl_percent": -9.7323519134038,
+      "sharpe_ratio": -9.034639692096993,
+      "max_drawdown": 13.757232478902095
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:27:32.687561"
+  },
+  {
+    "name": "Breakout_20",
+    "type": "momentum",
+    "parameters": {
+      "lookback": 20
+    },
+    "backtest": {
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.6750759168418696,
+      "sharpe_ratio": -15.874507866387544,
+      "max_drawdown": 2.6750759168418696
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:27:32.687635"
+  },
+  {
+    "name": "Momentum_Reversal",
+    "type": "mean_reversion",
+    "parameters": {
+      "rsi_overbought": 70,
+      "rsi_oversold": 30
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "profit_factor": Infinity,
+      "total_pnl_percent": 9.72474896633199,
+      "sharpe_ratio": 0,
+      "max_drawdown": 0
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": true,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 85.0,
+      "recommendation": "EXCELLENT - Deploy with real capital"
+    },
+    "tested_on": "2025-08-09T02:27:32.687665"
+  },
+  {
+    "name": "Volatility_Squeeze",
+    "type": "volatility",
+    "parameters": {
+      "bb_period": 20,
+      "bb_std": 2
+    },
+    "backtest": {
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "total_pnl_percent": -2.207592714505172,
+      "sharpe_ratio": 0,
+      "max_drawdown": 2.207592714505172
+    },
+    "evaluation": {
+      "is_profitable": false,
+      "is_robust": false,
+      "is_consistent": false,
+      "risk_acceptable": true,
+      "score": 10.0,
+      "recommendation": "POOR - Abandon or completely redesign"
+    },
+    "tested_on": "2025-08-09T02:27:32.687688"
+  },
+  {
+    "name": "Mean_Reversion_50",
+    "type": "mean_reversion",
+    "parameters": {
+      "period": 50,
+      "z_threshold": 2
+    },
+    "backtest": {
+      "total_trades": 3,
+      "win_rate": 33.33333333333333,
+      "profit_factor": 1.882374706885749,
+      "total_pnl_percent": 6.208910039388337,
+      "sharpe_ratio": 4.458441060500835,
+      "max_drawdown": 7.036591134056926
+    },
+    "evaluation": {
+      "is_profitable": true,
+      "is_robust": false,
+      "is_consistent": true,
+      "risk_acceptable": true,
+      "score": 50.0,
+      "recommendation": "MARGINAL - Needs significant improvement"
+    },
+    "tested_on": "2025-08-09T02:27:32.687756"
+  }
+]
