@@ -1,0 +1,7 @@
+# For Claude SDK examples only
+# (Not needed if using other agent frameworks)
+claude-code-sdk>=0.0.14
+anyio>=4.0.0
+
+# Common utilities
+python-dotenv>=1.0.0

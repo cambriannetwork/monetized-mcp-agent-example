@@ -1,0 +1,30 @@
+{
+  "goals": [
+    {
+      "id": "goal_001",
+      "title": "SOL Price Trend Analysis",
+      "description": "Track and analyze SOL price movements and identify trends",
+      "status": "active",
+      "priority": "high",
+      "created_at": "2025-08-09T02:43:05.377011",
+      "progress": 0,
+      "metrics": [
+        "price_accuracy",
+        "trend_detection"
+      ]
+    },
+    {
+      "id": "goal_002",
+      "title": "Market Volatility Research",
+      "description": "Analyze volatility patterns to optimize entry and exit timing",
+      "status": "active",
+      "priority": "medium",
+      "created_at": "2025-08-09T02:43:05.377023",
+      "progress": 0,
+      "metrics": [
+        "volatility_prediction",
+        "timing_accuracy"
+      ]
+    }
+  ]
+}

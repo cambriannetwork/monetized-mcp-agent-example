@@ -1,0 +1,12 @@
+# Cambrian Trading Agent Configuration
+
+agent:
+  name: "Cambrian Trading Agent"
+  version: "1.0.0"
+  loop_interval: 15  # seconds between cycles
+
+persistence:
+  state_file: "knowledge/state.json"
+
+logging:
+  level: "INFO"

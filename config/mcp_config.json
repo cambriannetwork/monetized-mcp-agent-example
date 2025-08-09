@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "fluora": {
+      "command": "/usr/bin/node",
+      "args": [
+        "--experimental-global-webcrypto",
+        "/home/ricky/.npm-global/bin/fluora-mcp"
+      ],
+      "env": {
+        "FLUORA_API_URL": "https://api.fluora.ai/api",
+        "NODE_OPTIONS": "--experimental-global-webcrypto"
+      }
+    }
+  }
+}
