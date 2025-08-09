@@ -7,13 +7,18 @@ This correctly configures the MCP server using the dictionary format
 import anyio
 import asyncio
 import os
+import sys
+import argparse
 import json
+import warnings
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
+from contextlib import redirect_stderr
+import io
 
 from claude_code_sdk import (
-    query,
+    query as claude_query,
     ClaudeCodeOptions,
     AssistantMessage,
     ResultMessage,
@@ -23,7 +28,12 @@ from claude_code_sdk import (
 )
 
 from src.persistence.state_manager import StateManager
+from src.persistence.query_tracker import QueryTracker
 from src.agent.goals import GoalManager
+from src.agent.research_engine import ResearchEngine
+from src.agent.research_strategies import ResearchStrategies
+from src.agent.strategy_research import StrategyResearchEngine, generate_strategy_research_prompt
+from src.setup import SetupWizard, run_setup
 
 # Load environment variables
 load_dotenv()
@@ -36,12 +46,21 @@ class CambrianMCPAgent:
         config = {'persistence': {'state_file': 'knowledge/state.json'}, 'agent': {}}
         self.state_manager = StateManager(config)
         self.goal_manager = GoalManager(config)
+        self.query_tracker = QueryTracker()
+        self.research_engine = ResearchEngine()
+        self.strategy_engine = StrategyResearchEngine()
         self.cycle_count = 0
         self.running = False
+        self.user_config = None
+        self.current_analysis = {}
+        self.current_signals = []
         
         # Load the MCP config
         with open('config/mcp_config.json') as f:
             self.mcp_config = json.load(f)
+        
+        # Load user config if exists
+        self._load_user_config()
         
     async def initialize(self):
         """Initialize agent and restore state"""
@@ -86,8 +105,12 @@ class CambrianMCPAgent:
             goal = active_goals[0]
             print(f"🔬 Working on: {goal.title}")
             
+            # Strategy research every 5 cycles or on strategy-related goals
+            if (self.cycle_count % 5 == 0 or 
+                any(keyword in goal.title.lower() for keyword in ["strategy", "profit", "backtest", "trading"])):
+                await self.research_strategies()
             # Execute research based on goal type
-            if any(keyword in goal.title.lower() for keyword in ["market", "price", "trend", "analysis"]):
+            elif any(keyword in goal.title.lower() for keyword in ["market", "price", "trend", "analysis"]):
                 await self.research_market_analysis()
             elif "arbitrage" in goal.title.lower():
                 await self.research_arbitrage_opportunities()
@@ -108,35 +131,72 @@ class CambrianMCPAgent:
         print(f"\n✅ Cycle #{self.cycle_count} completed")
     
     async def research_market_analysis(self):
-        """Research market conditions using REAL MCP purchases"""
+        """Intelligent progressive market research"""
         
-        # Load previous findings to build upon
-        previous_findings = []
+        print("\n📈 Starting intelligent market research...")
+        
+        # Get cached MCP details if available
+        mcp_cache = self.research_engine.get_mcp_cache()
+        
+        # Prepare current market state
+        current_price = None
+        latest_finding = None
+        
+        # Try to get latest price from recent findings
         findings_dir = Path("knowledge/research/findings")
         if findings_dir.exists():
-            recent_files = sorted(findings_dir.glob("*market_analysis.json"))[-5:]
-            for f in recent_files:
+            recent_files = sorted(findings_dir.glob("cycle_*_market_analysis.json"))
+            if recent_files:
                 try:
-                    with open(f) as file:
-                        previous_findings.append(json.load(file))
+                    with open(recent_files[-1]) as f:
+                        latest_finding = json.load(f)
+                        current_price = latest_finding.get('price')
                 except:
                     pass
         
-        system_prompt = """You are a Cambrian Trading Agent researching Solana market conditions.
-You are making a REAL purchase from the Cambrian API.
-This will cost 0.001 USDC on Base Sepolia testnet."""
+        # Perform deep analysis if we have data
+        if current_price:
+            self.current_analysis = self.research_engine.analyze_price_history(current_price, self.cycle_count)
+            self.current_signals = self.research_engine.generate_trading_signals(self.current_analysis)
+            
+            # Display analysis
+            print(f"\n📊 Market Analysis:")
+            print(f"  Price: ${current_price:.2f}")
+            if "trend" in self.current_analysis:
+                print(f"  Trend: {self.current_analysis['trend']['direction']} ({self.current_analysis['trend']['strength']:.1f}%)")
+            if "volatility_pct" in self.current_analysis:
+                print(f"  Volatility: {self.current_analysis['volatility_pct']:.1f}%")
+            
+            if self.current_signals:
+                print(f"\n📍 Trading Signals ({len(self.current_signals)}):")
+                for signal in self.current_signals[:3]:
+                    print(f"  • {signal['type']}: {signal['action']} - {signal['reason']}")
         
-        # Configure options with fluora MCP server - use the mcpServers directly
+        # Generate intelligent prompt based on cycle and analysis
+        prompt = ResearchStrategies.get_progressive_market_analysis_prompt(
+            cycle=self.cycle_count,
+            analysis=self.current_analysis,
+            signals=self.current_signals,
+            mcp_cache=mcp_cache
+        )
+        
+        # Advanced system prompt
+        system_prompt = """You are an advanced AI trading analyst for the Cambrian Trading Agent.
+You make REAL purchases from the Cambrian API (0.001 USDC per call on Base Sepolia).
+Your analysis should be progressively more sophisticated with each cycle.
+Focus on actionable insights and specific trading setups."""
+        
+        # Configure options
         options = ClaudeCodeOptions(
             system_prompt=system_prompt,
-            mcp_servers=self.mcp_config['mcpServers'],  # Pass the whole mcpServers dict
+            mcp_servers=self.mcp_config['mcpServers'],
             allowed_tools=[
                 "mcp__fluora__exploreServices",
                 "mcp__fluora__getServiceDetails",
                 "mcp__fluora__callServiceTool",
                 "Write"  # To save findings
             ],
-            max_turns=10  # More turns needed for the full purchase flow
+            max_turns=150
         )
         
         # Build context from previous findings
@@ -185,48 +245,132 @@ Include: cycle number, timestamp, price, trend analysis, and trading insights.""
         print("\n📈 Researching market conditions...")
         print("💳 Making REAL MCP purchases...")
         
-        # Execute the query with timeout
+        # Track execution
         purchase_made = False
+        mcp_details_found = False
         messages_count = 0
         tools_used = []
+        current_price_found = None
+        analysis_saved = False
         
         try:
-            # Add timeout to prevent hanging
-            async with asyncio.timeout(45):  # 45 second timeout
-                async for message in query(prompt=prompt, options=options):
+            # Suppress RuntimeError about cancel scope
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore")
+                async for message in claude_query(prompt=prompt, options=options):
                     messages_count += 1
                     
                     if isinstance(message, AssistantMessage):
-                        print(f"\n>>> Message {messages_count} from Claude")
                         for block in message.content:
                             if isinstance(block, TextBlock):
-                                print(f"Text: {block.text[:100]}...")
+                                # Extract and show key information
+                                text = str(block.text)
+                                
+                                # Look for price in the text
+                                if "price" in text.lower() and "$" in text:
+                                    import re
+                                    price_match = re.search(r'\$(\d+\.?\d*)', text)
+                                    if price_match:
+                                        current_price_found = float(price_match.group(1))
+                                        self._last_price_found = current_price_found  # Track for strategy research
+                                        print(f"\n💰 Price found: ${current_price_found:.2f}")
+                                        
+                                        # SAVE REAL MCP PRICE DATA
+                                        if purchase_made:
+                                            self.real_data_collector.add_real_mcp_price(
+                                                price=current_price_found,
+                                                timestamp=datetime.now().isoformat(),
+                                                source="MCP_Purchase"
+                                            )
+                                
+                                # Show trading signals
+                                if any(keyword in text.lower() for keyword in ['signal', 'setup', 'entry', 'target']):
+                                    # Extract just the relevant part
+                                    lines = text.split('\n')
+                                    for line in lines:
+                                        if any(keyword in line.lower() for keyword in ['signal', 'setup', 'entry', 'target', 'stop', 'profit']):
+                                            print(f"   📍 {line.strip()}")
+                            
                             elif isinstance(block, ToolUseBlock):
                                 tools_used.append(block.name)
-                                print(f"🔧 Tool: {block.name}")
-                                if isinstance(block.input, dict):
-                                    print(f"Input: {json.dumps(block.input, indent=2)[:200]}...")
                                 
                                 if (block.name == 'mcp__fluora__callServiceTool' and 
                                     isinstance(block.input, dict) and 
                                     block.input.get('toolName') == 'make-purchase'):
                                     purchase_made = True
                     
-                    elif isinstance(message, ResultMessage):
-                        print(f"<<< Result for message {messages_count}")
+                    # Stop after reasonable messages
+                    if messages_count > 20:  # Reduced from 30
+                        print(f"\n⚡ Stopping at {messages_count} messages (limit reached)")
+                        break
         
-        except asyncio.TimeoutError:
-            print("\n⏱️ Query timed out after 45 seconds")
+        except RuntimeError as e:
+            # Ignore cancel scope errors
+            if "cancel scope" not in str(e):
+                print(f"\n❌ RuntimeError: {e}")
         except Exception as e:
-            print(f"\n❌ Error during query: {e}")
+            print(f"\n❌ Error: {e}")
         
-        print(f"\n📊 Summary:")
-        print(f"  - Messages: {messages_count}")
-        print(f"  - Tools used: {tools_used}")
+        # Summary
+        print(f"\n📊 Cycle {self.cycle_count} Summary:")
+        print(f"  Messages: {messages_count}")
+        print(f"  Tools used: {len(set(tools_used))}")
         
         if purchase_made:
-            print("\n✅ Real MCP purchase completed!")
-            print("🔗 Check transaction at: https://sepolia.basescan.org/address/0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3")
+            print("  ✅ Purchase completed")
+            
+            # If we found a price, update analysis
+            if current_price_found:
+                # Update our analysis with the new price
+                self.current_analysis = self.research_engine.analyze_price_history(current_price_found, self.cycle_count)
+                new_signals = self.research_engine.generate_trading_signals(self.current_analysis)
+                
+                # Show key metrics
+                if "price_change_pct" in self.current_analysis:
+                    print(f"  📈 Price change: {self.current_analysis['price_change_pct']:+.2f}%")
+                if "trend" in self.current_analysis:
+                    trend = self.current_analysis['trend']
+                    print(f"  📊 Trend: {trend['direction']} ({trend['consecutive_moves']} moves)")
+                if "volatility_pct" in self.current_analysis:
+                    print(f"  📉 Volatility: {self.current_analysis['volatility_pct']:.1f}%")
+                
+                # Show new signals
+                if new_signals:
+                    print(f"\n  🎯 New Signals Generated:")
+                    for signal in new_signals[:2]:
+                        print(f"    • {signal['type']}: {signal['action']}")
+                
+                # Save minimal finding if analysis wasn't saved by Claude
+                if not analysis_saved:
+                    findings_dir = Path("knowledge/research/findings")
+                    findings_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    finding = {
+                        "cycle": self.cycle_count,
+                        "timestamp": datetime.now().isoformat(),
+                        "price": current_price_found,
+                        "analysis": {
+                            "trend": self.current_analysis.get("trend"),
+                            "volatility": self.current_analysis.get("volatility_pct"),
+                            "signals": len(new_signals)
+                        }
+                    }
+                    
+                    with open(findings_dir / f"cycle_{self.cycle_count}_market_analysis.json", 'w') as f:
+                        json.dump(finding, f, indent=2)
+                    print(f"  💾 Saved minimal findings")
+            
+            # Evolve goals based on findings
+            if self.current_signals:
+                current_goals = await self.goal_manager.get_active_goals()
+                evolved_goals = self.research_engine.evolve_goals(
+                    [g.to_dict() for g in current_goals],
+                    self.current_analysis,
+                    self.current_signals
+                )
+                
+                if len(evolved_goals) > len(current_goals):
+                    print(f"  🎯 Generated {len(evolved_goals) - len(current_goals)} new goals")
         else:
             print("\n⚠️  No MCP purchase detected this cycle")
             if 'mcp__fluora__exploreServices' not in tools_used and 'mcp__fluora__callServiceTool' not in tools_used:
@@ -249,7 +393,7 @@ Use the fluora MCP server to purchase pool and price data from different DEXs.""
                 "mcp__fluora__callServiceTool",
                 "Write"
             ],
-            max_turns=10
+            max_turns=150  # Allow plenty of turns
         )
         
         prompt = f"""Research arbitrage opportunities by comparing prices across DEXs.
@@ -298,7 +442,7 @@ The agent has access to the Cambrian API for real-time Solana data."""
         options = ClaudeCodeOptions(
             system_prompt=system_prompt,
             allowed_tools=["Write"],
-            max_turns=5
+            max_turns=100  # Allow plenty of turns for goal generation
         )
         
         prompt = f"""Generate 3-5 strategic research goals for a Solana trading agent.
@@ -336,12 +480,22 @@ Format exactly as shown (include ALL fields):
 Make the goals diverse and complementary, covering different aspects of Solana trading."""
         
         messages_count = 0
-        async for message in query(prompt=prompt, options=options):
-            messages_count += 1
-            if isinstance(message, AssistantMessage):
-                for block in message.content:
-                    if isinstance(block, ToolUseBlock) and block.name == "Write":
-                        print(f"📝 Writing goals to: {block.input.get('file_path', 'unknown')}")
+        try:
+            # Suppress RuntimeError about cancel scope
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore")
+                async for message in claude_query(prompt=prompt, options=options):
+                    messages_count += 1
+                    if isinstance(message, AssistantMessage):
+                        for block in message.content:
+                            if isinstance(block, ToolUseBlock) and block.name == "Write":
+                                print(f"📝 Writing goals to: {block.input.get('file_path', 'unknown')}")
+        except RuntimeError as e:
+            # Ignore cancel scope errors
+            if "cancel scope" not in str(e):
+                print(f"\n❌ RuntimeError: {e}")
+        except Exception as e:
+            print(f"\n❌ Error: {e}")
         
         print(f"✅ Goal generation complete (messages: {messages_count})")
     
@@ -354,16 +508,56 @@ Make the goals diverse and complementary, covering different aspects of Solana t
                 await self.execute_cycle()
                 
                 # Wait before next cycle
-                print(f"\n💤 Waiting 15 seconds until next cycle...")
-                await asyncio.sleep(15)
+                interval = 15  # Default
+                if self.user_config and 'agent' in self.user_config:
+                    interval = self.user_config['agent'].get('cycle_interval_seconds', 15)
+                
+                print(f"\n💤 Waiting {interval} seconds until next cycle...")
+                await asyncio.sleep(interval)
                 
         except KeyboardInterrupt:
             print("\n\n⚠️  Shutting down...")
             self.running = False
+    
+    def _load_user_config(self):
+        """Load user configuration if it exists"""
+        user_config_file = Path("config/user_config.json")
+        if user_config_file.exists():
+            with open(user_config_file) as f:
+                self.user_config = json.load(f)
 
 
 async def main():
     """Main entry point"""
+    
+    # Suppress specific RuntimeError about cancel scope
+    warnings.filterwarnings("ignore", message=".*cancel scope.*different task.*")
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Cambrian Trading Agent")
+    parser.add_argument("--reset", action="store_true", help="Reset project and run setup wizard")
+    args = parser.parse_args()
+    
+    # Check for first run or reset flag
+    wizard = SetupWizard()
+    is_first_run = wizard.check_first_run()
+    
+    if args.reset or is_first_run:
+        if is_first_run:
+            print("\n👋 Welcome! This appears to be your first time running the Cambrian Trading Agent.")
+            print("Let's set up your trading objectives and preferences.\n")
+        
+        # Run setup wizard
+        config = await run_setup(reset=args.reset)
+        if not config:
+            print("Setup cancelled.")
+            return
+        
+        print("\n✅ Setup complete! Starting the agent with your configuration...\n")
+        await asyncio.sleep(2)  # Brief pause
+    
+    # Load user config
+    user_config = wizard.load_config()
     
     print("""
     ╔═══════════════════════════════════════════╗
@@ -377,6 +571,9 @@ async def main():
     ╚═══════════════════════════════════════════╝
     """)
     
+    if user_config and user_config.get('user_direction') != 'default':
+        print(f"📊 Direction: {user_config.get('user_direction', 'default')}")
+    
     print("\n⚠️  WARNING: This agent makes REAL paid MCP calls!")
     print("📍 Each call costs 0.001 USDC on Base Sepolia")
     print("🔗 Monitor at: https://sepolia.basescan.org/address/0x4C3B0B1Cab290300bd5A36AD5f33A607acbD7ac3")
@@ -389,7 +586,8 @@ async def main():
         return
     
     print("Starting autonomous agent...")
-    print("The agent will make REAL purchases every 15 seconds.")
+    if user_config and user_config['agent']['auto_purchase']:
+        print(f"💳 Auto-purchase enabled with daily budget: ${user_config['agent']['daily_budget_usdc']} USDC")
     
     # Create and run agent
     agent = CambrianMCPAgent()
@@ -398,4 +596,27 @@ async def main():
 
 
 if __name__ == "__main__":
-    anyio.run(main)
+    # Suppress specific RuntimeError warnings
+    import logging
+    logging.getLogger("anyio").setLevel(logging.ERROR)
+    
+    # Configure asyncio to suppress task exceptions
+    import asyncio
+    
+    def exception_handler(loop, context):
+        # Suppress the specific RuntimeError about cancel scope
+        exception = context.get('exception')
+        if isinstance(exception, RuntimeError) and 'cancel scope' in str(exception):
+            return  # Silently ignore
+        # Default handler for other exceptions
+        loop.default_exception_handler(context)
+    
+    # Run with custom exception handler
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.set_exception_handler(exception_handler)
+    
+    try:
+        anyio.run(main)
+    finally:
+        loop.close()

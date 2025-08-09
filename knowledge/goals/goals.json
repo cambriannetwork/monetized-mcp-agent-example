@@ -3,32 +3,28 @@
     {
       "id": "goal_001",
       "title": "SOL Price Trend Analysis",
-      "description": "Analyze SOL price trends over multiple cycles to identify patterns and predict future movements",
+      "description": "Track and analyze SOL price movements and identify trends",
       "status": "active",
       "priority": "high",
-      "created_at": "2025-08-08T00:00:00",
+      "created_at": "2025-08-09T02:43:05.377011",
       "progress": 0,
-      "metrics": ["price_change_percentage", "trend_accuracy", "cycle_count"]
+      "metrics": [
+        "price_accuracy",
+        "trend_detection"
+      ]
     },
     {
       "id": "goal_002",
-      "title": "Trading Entry/Exit Optimization",
-      "description": "Identify optimal entry and exit points for SOL trades based on technical indicators and market conditions",
-      "status": "active",
-      "priority": "high",
-      "created_at": "2025-08-08T00:00:00",
-      "progress": 0,
-      "metrics": ["profit_potential", "risk_reward_ratio", "signal_accuracy"]
-    },
-    {
-      "id": "goal_003",
-      "title": "SOL Volatility Pattern Research",
-      "description": "Build a comprehensive understanding of SOL volatility patterns to improve risk management strategies",
+      "title": "Market Volatility Research",
+      "description": "Analyze volatility patterns to optimize entry and exit timing",
       "status": "active",
       "priority": "medium",
-      "created_at": "2025-08-08T00:00:00",
+      "created_at": "2025-08-09T02:43:05.377023",
       "progress": 0,
-      "metrics": ["volatility_index", "pattern_confidence", "prediction_accuracy"]
+      "metrics": [
+        "volatility_prediction",
+        "timing_accuracy"
+      ]
     }
   ]
 }
